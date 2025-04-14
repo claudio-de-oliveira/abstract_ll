@@ -1,0 +1,64 @@
+{
+    // Use o IntelliSense para saber mais sobre os atributos possíveis.
+    // Focalizar para exibir as descrições dos atributos existentes.
+    // Para obter mais informações, acesse: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in library 'abstract_ll'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=abstract_ll"
+                ],
+                "filter": {
+                    "name": "abstract_ll",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'abstract_ll'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=abstract_ll",
+                    "--package=abstract_ll"
+                ],
+                "filter": {
+                    "name": "abstract_ll",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'abstract_ll'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=abstract_ll",
+                    "--package=abstract_ll"
+                ],
+                "filter": {
+                    "name": "abstract_ll",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        }
+    ]
+}
