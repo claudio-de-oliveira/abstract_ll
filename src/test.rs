@@ -1,5 +1,5 @@
 #[cfg(test)]
-mod tests {
+mod abstract_tag_tests {
     use crate::abstract_tag::{AbstractTAG, Attribute};
 
     #[test]
@@ -36,19 +36,36 @@ mod tests {
             name: "attribute3".to_string(),
         });
 
-        match vn.get_attribute(0) {
-            Some(a) => assert_eq!(a.name, "attribute1"),
-            None => assert!(false, "Expected Some"),
-        }
+        assert_eq!(vn.get_attribute(0).name, "attribute1");
+        // match vn.get_attribute(0) {
+        //     Some(a) => assert_eq!(a.name, "attribute1"),
+        //     None => assert!(false, "Expected Some"),
+        // }
 
-        match vn.get_attribute(1) {
-            Some(a) => assert_eq!(a.name, "attribute2"),
-            None => assert!(false, "Expected Some"),
-        }
+        assert_eq!(vn.get_attribute(1).name, "attribute2");
+        // match vn.get_attribute(1) {
+        //     Some(a) => assert_eq!(a.name, "attribute2"),
+        //     None => assert!(false, "Expected Some"),
+        // }
 
-        match vn.get_attribute(2) {
-            Some(a) => assert_eq!(a.name, "attribute3"),
-            None => assert!(false, "Expected Some"),
-        }
+        assert_eq!(vn.get_attribute(2).name, "attribute3");
+        // match vn.get_attribute(2) {
+        //     Some(a) => assert_eq!(a.name, "attribute3"),
+        //     None => assert!(false, "Expected Some"),
+        // }
     }
 }
+
+#[cfg(test)]
+mod abstract_token_tests {
+    use crate::{abstract_tag::AbstractTAG, abstract_token::AbstractToken};
+
+    #[test]
+    fn test_abstract_token() {
+        let tag = AbstractTAG::vn(1, "variable", 1);
+        let token = AbstractToken::new(tag);
+        assert_eq!(token.get_tag().to_int(), 1);
+        assert_eq!(token.has_complement(), true);
+    }
+}
+

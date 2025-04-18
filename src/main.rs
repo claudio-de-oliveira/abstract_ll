@@ -1,5 +1,6 @@
 mod abstract_tag;
 mod test;
+pub mod abstract_token;
 
 #[warn(non_snake_case)]
 use abstract_tag::AbstractTAG;

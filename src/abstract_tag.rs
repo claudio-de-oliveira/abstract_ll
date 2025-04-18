@@ -8,6 +8,7 @@ const ACTION : u16 = 0x2000;
 
 #[derive(Clone)]
 #[derive(Debug)]
+#[allow(dead_code)]
 pub struct Attribute {
     pub name: String
 }
@@ -74,18 +75,16 @@ impl<'a> AbstractTAG<'a> {
     }
 
     #[allow(dead_code)]
-    pub fn get_attribute(&self, i: usize) -> Option<&Attribute> {
+    pub fn get_attribute(&self, i: usize) -> &Attribute {
 
         if !self.exist_attribute(i) {
             panic!("{} deve herdar, pelo menos, {} atributo(s)!", self.to_string(), i + 1);
-            // return None;
         }
         if self.inherited.as_ref().unwrap()[i].is_none() {
             panic!("{}[{}] não deve ser nulo!", self.to_string(), i);
-            // return None;
         }
 
-        self.inherited.as_ref().unwrap()[i].as_ref()
+        self.inherited.as_ref().unwrap()[i].as_ref().unwrap()
     }
 
     #[allow(dead_code)]
@@ -99,6 +98,14 @@ impl<'a> AbstractTAG<'a> {
             inherited[i] = Some(v.clone());
         }
     }
+
+    pub fn has_complement(&self) -> bool {
+        match self.inherited {
+            Some(_) => true,
+            None => false,
+        }
+    }
+
 
 }
 
