@@ -18,10 +18,14 @@ impl AbstractToken {
     pub fn has_complement(&self) -> bool {
         self.tag.has_complement()
     }
+
+    pub fn to_string(&self) -> String {
+        format!("{0} [{1:?}]", self.tag.to_string(), self.tag.get_complement().unwrap_or_default())
+    }
 }
 
 impl fmt::Display for AbstractToken {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{0}", self.tag.to_string())
+        write!(f, "{0}", self.to_string())
     }
 }
