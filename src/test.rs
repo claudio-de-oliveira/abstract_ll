@@ -109,3 +109,7 @@ mod abstract_token_tests {
 
 }
 
+#[cfg(test)]
+mod abstract_scanner {
+}
+

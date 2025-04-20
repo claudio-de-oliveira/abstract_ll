@@ -1,21 +1,21 @@
 
-use std::{fmt, vec::Vec};
+use std::fmt;
 
-const VARIABLE : u16 = 0x8000;
-const TERMINAL : u16 = 0x4000;
-const ACTION : u16 = 0x2000;
+const VARIABLE : usize = 0x8000;
+const TERMINAL : usize = 0x4000;
+const ACTION : usize = 0x2000;
 
 
 #[derive(Debug, Clone)]
 #[allow(dead_code)]
 pub struct AbstractTAG<'a> {
-    tag : u16,
+    tag : usize,
     name : &'a str,
     num_att: u16,
 }
 
 impl<'a> AbstractTAG<'a> {
-    pub fn new(tag: u16, name: &'a str, num_att: u16) -> Self {
+    pub fn new(tag: usize, name: &'a str, num_att: u16) -> Self {
         AbstractTAG {
             tag,
             name,
@@ -23,20 +23,20 @@ impl<'a> AbstractTAG<'a> {
         }
     }
 
-    pub fn vn(tag: u16, name: &str, num_att: u16) -> AbstractTAG {
+    pub fn vn(tag: usize, name: &str, num_att: u16) -> AbstractTAG {
         AbstractTAG::new(tag | VARIABLE, name, num_att)
     }
-    pub fn vt(t: u16, name: &str, num_att: u16) -> AbstractTAG {
+    pub fn vt(t: usize, name: &str, num_att: u16) -> AbstractTAG {
         AbstractTAG::new(t | TERMINAL, name, num_att)
     }
-    pub fn action(t: u16, name: &str, num_att: u16) -> AbstractTAG {
+    pub fn action(t: usize, name: &str, num_att: u16) -> AbstractTAG {
         AbstractTAG::new(t | ACTION, name, num_att)
     }
 
     #[allow(dead_code)]
     #[inline]
-    pub fn to_int(&self) -> u16 {
-        self.tag & 0x0FFFu16
+    pub fn to_int(&self) -> usize {
+        self.tag & 0x0FFF
     }
     #[inline]
     pub fn is_variable(&self) -> bool {

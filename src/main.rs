@@ -2,6 +2,7 @@ mod abstract_tag;
 mod test;
 pub mod abstract_token;
 pub mod abstract_parser;
+pub mod abstract_rule;
 
 #[warn(non_snake_case)]
 use abstract_tag::AbstractTAG;
