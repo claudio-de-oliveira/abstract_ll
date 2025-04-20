@@ -58,9 +58,6 @@ impl<'a> AbstractParser<'a> {
             }
         }
 
-        scanner_.initialize();
-        semantic_.initialize();
-
         AbstractParser {
             scanner: scanner_,
             semantic: semantic_,
@@ -70,15 +67,40 @@ impl<'a> AbstractParser<'a> {
         }
     }
 
+    #[inline]
     pub fn get_end_mark(&'a self) -> &'a AbstractTAG<'a> {
         &self.end_mark
     }
 
     #[allow(dead_code)]
+    fn production(&self, a: AbstractTAG<'a>, token: &AbstractToken) -> i32 {
+        let row = a.to_int() as usize;
+        let col = token.get_tag().to_int() as usize;
+
+        if row < self.m.row_len() && col < self.m.column_len() {
+            return self.m[(row, col)];
+        } else {
+            return -1;
+        }
+    }
+
     fn push_rhs(&self, stk: &mut Vec<AbstractTAG<'a>>, p: usize) {
         // Push the right-hand side of the production rule onto the stack in reverse order
         for i in (0..self.rules[p].rhs.len()).rev() {
             stk.push(self.rules[p].rhs[i].clone());
         }
+    }
+
+   
+    pub fn parse(&mut self, text: &str) -> bool {
+        let stk = &mut Vec::<AbstractTAG<'a>>::new();
+        let mut token = self.scanner.next_token(text);
+
+        self.push_rhs(stk, 0);
+
+        self.scanner.initialize();
+        self.semantic.initialize();
+
+        true
     }
 }
