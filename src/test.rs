@@ -67,7 +67,6 @@ mod abstract_token_tests {
         assert_eq!(token.get_attribute(2).name, "attribute3");
     }
 
-
     #[test]
     fn abstract_token_format() {
         let tag = AbstractTAG::vn(1, "variable", 3);
@@ -109,7 +108,102 @@ mod abstract_token_tests {
 
 }
 
+
+#[cfg(test)]
+mod abstract_environment {
+    use crate::scanner_environment::ScannerEnv;
+
+    fn create_env() -> ScannerEnv<'static> {
+        let text_ = "int {\na = 0;\n#";
+
+        let vtext_ = text_.split('\n').collect::<Vec<_>>();
+
+        ScannerEnv::new(vtext_)
+    }
+
+    #[test]
+    fn abstract_environment_next_char() {
+        let mut env_ = create_env();
+        assert_eq!(env_.next_char(), 'i');
+        assert_eq!(env_.next_char(), 'n');
+        assert_eq!(env_.next_char(), 't');
+        assert_eq!(env_.next_char(), ' ');
+        assert_eq!(env_.next_char(), '{');
+        assert_eq!(env_.next_char(), '\n');
+        assert_eq!(env_.next_char(), 'a');
+        assert_ne!(env_.next_char(), 'x');
+    }
+
+    #[test]
+    fn abstract_environment_current_row() {
+        let mut env_ = create_env();
+        assert_eq!(env_.next_char(), 'i');
+        assert_eq!(env_.next_char(), 'n');
+        assert_eq!(env_.next_char(), 't');
+        assert_eq!(env_.next_char(), ' ');
+        assert_eq!(env_.next_char(), '{');
+        assert_eq!(env_.get_current_row(), 0);
+        assert_eq!(env_.next_char(), '\n');
+        assert_eq!(env_.get_current_row(), 1);
+    }
+
+    #[test]
+    fn abstract_environment_current_col() {
+        let mut env_ = create_env();
+        assert_eq!(env_.get_current_col(), 0);
+        assert_eq!(env_.next_char(), 'i');
+        assert_eq!(env_.get_current_col(), 1);
+        assert_eq!(env_.next_char(), 'n');
+        assert_eq!(env_.get_current_col(), 2);
+        assert_eq!(env_.next_char(), 't');
+        assert_eq!(env_.get_current_col(), 3);
+        assert_eq!(env_.next_char(), ' ');
+        assert_eq!(env_.get_current_col(), 4);
+        assert_eq!(env_.next_char(), '{');
+        assert_eq!(env_.get_current_col(), 5);
+        assert_eq!(env_.next_char(), '\n');
+        assert_eq!(env_.get_current_col(), 0);
+    }
+
+    #[test]
+    fn abstract_environment_retract() {
+        let mut env_ = create_env();
+        assert_eq!(env_.next_char(), 'i');
+        assert_eq!(env_.next_char(), 'n');
+        assert_eq!(env_.next_char(), 't');
+        assert_eq!(env_.next_char(), ' ');
+        assert_eq!(env_.next_char(), '{');
+        assert_eq!(env_.next_char(), '\n');
+        assert_eq!(env_.get_current_row(), 1);
+        env_.retract();
+        assert_eq!(env_.get_current_row(), 0);
+        assert_eq!(env_.get_current_col(), 4);
+        assert_eq!(env_.next_char(), '{');
+        assert_eq!(env_.next_char(), '\n');
+        assert_eq!(env_.get_current_col(), 0);
+    }
+
+    #[test]
+    fn abstract_environment_end_of_text() {
+        let mut env_ = create_env();
+        assert_eq!(env_.next_char(), 'i');
+        assert_eq!(env_.next_char(), 'n');
+        assert_eq!(env_.next_char(), 't');
+        assert_eq!(env_.next_char(), ' ');
+        assert_eq!(env_.next_char(), '{');
+        assert_eq!(env_.next_char(), '\n');
+        assert_eq!(env_.next_char(), 'a');
+        assert_eq!(env_.next_char(), ' ');
+        assert_eq!(env_.next_char(), '=');
+        assert_eq!(env_.next_char(), ' ');
+        assert_eq!(env_.next_char(), '0');
+        assert_eq!(env_.next_char(), ';');
+        assert_eq!(env_.next_char(), '\n');
+        assert_eq!(env_.next_char(), '#');
+        assert!(env_.end_of_text());
+    }
+}
+
 #[cfg(test)]
 mod abstract_scanner {
 }
-

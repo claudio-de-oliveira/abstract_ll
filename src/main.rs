@@ -3,6 +3,9 @@ mod test;
 pub mod abstract_token;
 pub mod abstract_parser;
 pub mod abstract_rule;
+pub mod scanner_environment;
+pub mod concrete_scanner;
+mod tag;
 
 #[warn(non_snake_case)]
 use abstract_tag::AbstractTAG;

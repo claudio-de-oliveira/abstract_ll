@@ -1,8 +1,8 @@
-use crate::{abstract_tag::AbstractTAG, abstract_token::AbstractToken, abstract_rule::Rule};
+use crate::{abstract_rule::Rule, abstract_tag::AbstractTAG, abstract_token::AbstractToken, scanner_environment::ScannerEnv};
 use array2d::Array2D;
 
 pub trait Scanner {
-    fn next_token(&self, text : &str) -> AbstractToken;
+    fn next_token(&self, env : &mut ScannerEnv) -> AbstractToken;
     fn initialize(&mut self);
 }
 
@@ -28,7 +28,7 @@ impl<'a> AbstractParser<'a> {
         number_of_variables: usize,
         scanner_: &'a mut Box<dyn Scanner>,
         semantic_: &'a mut Box<dyn Semantic>,
-        end_mark: AbstractTAG<'a>
+        end_mark: AbstractTAG<'a>,
     ) -> Self {
 
         let mut m_ = Box::new(Array2D::filled_with(-1, number_of_terminals, number_of_variables));
@@ -91,16 +91,54 @@ impl<'a> AbstractParser<'a> {
         }
     }
 
-   
-    pub fn parse(&mut self, text: &str) -> bool {
-        let stk = &mut Vec::<AbstractTAG<'a>>::new();
-        let mut token = self.scanner.next_token(text);
 
-        self.push_rhs(stk, 0);
+    pub fn parse(&mut self, vtext: Vec<&str>) -> bool {
+
+        let stk = &mut Vec::<AbstractTAG<'a>>::new();
+
+        let scanner_env = &mut ScannerEnv::new(vtext);
 
         self.scanner.initialize();
         self.semantic.initialize();
 
+        self.push_rhs(stk, 0);
+
+        let mut token: AbstractToken = self.scanner.next_token(scanner_env);
+
+        loop {
+            let a = stk.pop().unwrap_or(self.end_mark.clone());
+
+            if a.is_terminal() {
+
+                if a.to_int() == self.end_mark.to_int() {
+                    // END
+                    break;
+                } else if a.to_int() == token.get_tag().to_int() {
+                    // POP
+                    token = self.scanner.next_token(scanner_env);
+                } else {
+                    // ERROR
+                    panic!("Error: Expected {}, but found {}", a.to_string(), token.to_string());
+                }
+
+            } else if a.is_variable() {
+
+                let p = self.production(a, &token);
+
+                if p == -1 {
+                    token = self.scanner.next_token(scanner_env);
+                } else if p == -2 {
+                    // Follow set, do nothing
+                } else {
+                    self.push_rhs(stk, p as usize);
+                }
+
+            } else {
+
+                self.semantic.execute(&token);
+
+            }
+        }
         true
     }
 }

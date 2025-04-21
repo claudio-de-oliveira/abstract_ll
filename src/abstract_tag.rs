@@ -1,17 +1,17 @@
 
 use std::fmt;
 
-const VARIABLE : usize = 0x8000;
-const TERMINAL : usize = 0x4000;
-const ACTION : usize = 0x2000;
+pub const VARIABLE : usize = 0x8000;
+pub const TERMINAL : usize = 0x4000;
+pub const ACTION : usize = 0x2000;
 
 
 #[derive(Debug, Clone)]
 #[allow(dead_code)]
 pub struct AbstractTAG<'a> {
-    tag : usize,
-    name : &'a str,
-    num_att: u16,
+    pub tag : usize,
+    pub name : &'a str,
+    pub num_att: u16,
 }
 
 impl<'a> AbstractTAG<'a> {
@@ -23,14 +23,14 @@ impl<'a> AbstractTAG<'a> {
         }
     }
 
-    pub fn vn(tag: usize, name: &str, num_att: u16) -> AbstractTAG {
-        AbstractTAG::new(tag | VARIABLE, name, num_att)
+    pub fn vn(t: usize, name: &'static str, num_att: u16) -> AbstractTAG<'static> {
+        AbstractTAG{ tag: t | VARIABLE, name, num_att }
     }
-    pub fn vt(t: usize, name: &str, num_att: u16) -> AbstractTAG {
-        AbstractTAG::new(t | TERMINAL, name, num_att)
+    pub fn vt(t: usize, name: &'static str, num_att: u16) -> AbstractTAG<'static> {
+        AbstractTAG{ tag: t | TERMINAL, name, num_att }
     }
-    pub fn action(t: usize, name: &str, num_att: u16) -> AbstractTAG {
-        AbstractTAG::new(t | ACTION, name, num_att)
+    pub fn action(t: usize, name: &'static str, num_att: u16) -> AbstractTAG<'static> {
+        AbstractTAG{ tag: t | ACTION, name, num_att }
     }
 
     #[allow(dead_code)]
