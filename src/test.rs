@@ -1,33 +1,33 @@
 #[cfg(test)]
-mod abstract_tag_tests {
+mod tag_tests {
 
-    use crate::abstract_tag::AbstractTAG;
+    use crate::tag::Tag;
 
     #[test]
-    fn abstract_tag_new() {
-        let vn = AbstractTAG::vn(1, "variable", 1);
-        let vt = AbstractTAG::vt(1, "terminal", 1);
-        let ac = AbstractTAG::action(1, "action", 1);
+    fn tag_new() {
+        let vn = Tag::vn(1, "variable", 1);
+        let vt = Tag::vt(1, "terminal", 1);
+        let ac = Tag::action(1, "action", 1);
         assert_eq!(vn.to_int(), 1);
         assert_eq!(vt.to_int(), 1);
         assert_eq!(ac.to_int(), 1);
     }
 
     #[test]
-    fn abstract_tag_is() {
-        let vn = AbstractTAG::vn(1, "variable", 1);
-        let vt = AbstractTAG::vt(1, "terminal", 1);
-        let ac = AbstractTAG::action(1, "action", 1);
+    fn tag_is() {
+        let vn = Tag::vn(1, "variable", 1);
+        let vt = Tag::vt(1, "terminal", 1);
+        let ac = Tag::action(1, "action", 1);
         assert_eq!(vn.is_variable(), true);
         assert_eq!(vt.is_terminal(), true);
         assert_eq!(ac.is_action(), true);
     }
 
     #[test]
-    fn abstract_tag_to_string() {
-        let vn = AbstractTAG::vn(1, "variable", 1);
-        let vt = AbstractTAG::vt(1, "terminal", 1);
-        let ac = AbstractTAG::action(1, "action", 1);
+    fn tag_to_string() {
+        let vn = Tag::vn(1, "variable", 1);
+        let vt = Tag::vt(1, "terminal", 1);
+        let ac = Tag::action(1, "action", 1);
         assert_eq!(vn.to_string(), "<variable>");
         assert_eq!(vt.to_string(), "\"terminal\"");
         assert_eq!(ac.to_string(), "@action");
@@ -36,21 +36,21 @@ mod abstract_tag_tests {
 }
 
 #[cfg(test)]
-mod abstract_token_tests {
-    use crate::{abstract_tag::AbstractTAG, abstract_token::AbstractToken, abstract_token::Attribute};
+mod token_tests {
+    use crate::{tag::Tag, token::Token, token::Attribute};
 
     #[test]
-    fn abstract_token_new() {
-        let tag = AbstractTAG::vn(1, "variable", 1);
-        let token = AbstractToken::new(tag);
+    fn token_new() {
+        let tag = Tag::vn(1, "variable", 1);
+        let token = Token::new(tag);
         assert_eq!(token.get_tag().to_int(), 1);
         assert_eq!(token.has_complement(), true);
     }
 
     #[test]
-    fn abstract_tag_get_attribute() {
-        let tag = AbstractTAG::vn(1, "variable", 3);
-        let token = &mut AbstractToken::new(tag);
+    fn tag_get_attribute() {
+        let tag = Tag::vn(1, "variable", 3);
+        let token = &mut Token::new(tag);
 
         token.set_attribute(0, &Attribute {
             name: "attribute1".to_string(),
@@ -68,9 +68,9 @@ mod abstract_token_tests {
     }
 
     #[test]
-    fn abstract_token_format() {
-        let tag = AbstractTAG::vn(1, "variable", 3);
-        let token = &mut AbstractToken::new(tag);
+    fn token_format() {
+        let tag = Tag::vn(1, "variable", 3);
+        let token = &mut Token::new(tag);
 
         token.set_attribute(0, &Attribute {
             name: "attribute1".to_string(),
@@ -81,8 +81,8 @@ mod abstract_token_tests {
 
         println!("{:#?}", token);
 
-        assert_eq!(format!("{:#?}", token).to_string(), String::from("AbstractToken {
-    tag: AbstractTAG {
+        assert_eq!(format!("{:#?}", token).to_string(), String::from("Token {
+    tag: Tag {
         tag: 32769,
         name: \"variable\",
         num_att: 3,
@@ -110,7 +110,7 @@ mod abstract_token_tests {
 
 
 #[cfg(test)]
-mod abstract_environment {
+mod environment {
     use crate::scanner_environment::ScannerEnv;
 
     fn create_env() -> ScannerEnv<'static> {
@@ -122,7 +122,7 @@ mod abstract_environment {
     }
 
     #[test]
-    fn abstract_environment_next_char() {
+    fn environment_next_char() {
         let mut env_ = create_env();
         assert_eq!(env_.next_char(), 'i');
         assert_eq!(env_.next_char(), 'n');
@@ -135,7 +135,7 @@ mod abstract_environment {
     }
 
     #[test]
-    fn abstract_environment_current_row() {
+    fn environment_current_row() {
         let mut env_ = create_env();
         assert_eq!(env_.next_char(), 'i');
         assert_eq!(env_.next_char(), 'n');
@@ -148,7 +148,7 @@ mod abstract_environment {
     }
 
     #[test]
-    fn abstract_environment_current_col() {
+    fn environment_current_col() {
         let mut env_ = create_env();
         assert_eq!(env_.get_current_col(), 0);
         assert_eq!(env_.next_char(), 'i');
@@ -166,7 +166,7 @@ mod abstract_environment {
     }
 
     #[test]
-    fn abstract_environment_retract() {
+    fn environment_retract() {
         let mut env_ = create_env();
         assert_eq!(env_.next_char(), 'i');
         assert_eq!(env_.next_char(), 'n');
@@ -184,7 +184,7 @@ mod abstract_environment {
     }
 
     #[test]
-    fn abstract_environment_end_of_text() {
+    fn environment_end_of_text() {
         let mut env_ = create_env();
         assert_eq!(env_.next_char(), 'i');
         assert_eq!(env_.next_char(), 'n');
@@ -205,5 +205,5 @@ mod abstract_environment {
 }
 
 #[cfg(test)]
-mod abstract_scanner {
+mod scanner {
 }

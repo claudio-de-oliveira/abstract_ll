@@ -1,175 +1,75 @@
-use crate::abstract_tag::AbstractTAG;
-use std::sync::LazyLock;
 
-// T E R M I N A I S
-pub static VT_RELOP: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(0, "relop", 0));
-pub static VT_ADDOP: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(1, "addop", 0));
-pub static VT_MULOP: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(2, "mulop", 0));
-pub static VT_LPAR: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(3, "(", 0));
-pub static VT_RPAR: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(4, ")", 0));
-pub static VT_COMMA: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(5, ",", 0));
-pub static VT_VARIABLE: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(6, "variable", 0));
-pub static VT_INTEGER: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(7, "integer", 0));
-pub static VT_DECIMAL: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(8, "decimal", 0));
-pub static VT_LITERAL: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(9, "literal", 0));
-pub static VT_FUNCTION: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(10, "fx", 0));
-pub static VT_IF: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(11, "if", 0));
-pub static VT_THEN: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(12, "then", 0));
-pub static VT_ELSE: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(13, "else", 0));
-pub static VT_TRUE: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(14, "true", 0));
-pub static VT_FALSE: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(15, "false", 0));
-pub static VT_IS: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(16, "is", 0));
-pub static VT_ISATLEAST: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(17, "isatleast", 0));
-pub static VT_ISATMOST: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(18, "isatmost", 0));
-pub static VT_ISLESSTHAN: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(19, "islessthan", 0));
-pub static VT_ISMORETHAN: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(20, "ismorethan", 0));
-pub static VT_ISNOT: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(21, "isnot", 0));
-pub static VT_AND: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(22, "and", 0));
-pub static VT_OR: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(23, "or", 0));
-pub static VT_XOR: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(24, "xor", 0));
-pub static VT_NOT: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(25, "not", 0));
-pub static VT_SELECT: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(26, "select", 0));
-pub static VT_FROM: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(27, "from", 0));
-pub static VT_FORMAT: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(28, "format", 0));
-pub static VT_ENDMARK: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(29, "#", 0));
+use std::fmt;
 
-pub static NUMBER_OF_TERMINALS: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vn(30, "", 0));
+pub const VARIABLE : usize = 0x8000;
+pub const TERMINAL : usize = 0x4000;
+pub const ACTION : usize = 0x2000;
 
-// ABS, ACOS, ASCENDING, ASIN, ATAN, 
-pub static VT_ALT: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(100, "alt", 0));
-pub static VT_ANSWERED: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(102, "answered", 0));
-pub static VT_AS: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(103, "as", 0));
-pub static VT_ATTACH: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(104, "attach", 0));
-pub static VT_ATTRIBUTE: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(105, "attribute", 0));
-pub static VT_AUTHORNOTE: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(106, "authornote", 0));
-pub static VT_BY: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(107, "by", 0));
-pub static VT_CAPITALS: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(108, "capitals", 0));
-pub static VT_CELL: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(109, "cell", 0));
-pub static VT_CLOAKED: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(110, "cloaked", 0));
-pub static VT_COLLECT: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(111, "collect", 0));
-pub static VT_COLLECTVALUES: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(112, "collectvalues", 0));
-pub static VT_COMMITTED: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(113, "committed", 0));
-pub static VT_DATATYPE: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(114, "datatype", 0));
-pub static VT_DEFERRED: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(115, "deferred", 0));
-pub static VT_DEFINITE: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(116, "definite", 0));
-pub static VT_DOCTITLE: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(117, "doctitle", 0));
-pub static VT_DOCUMENT: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(118, "document", 0));
-pub static VT_EVERY: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(120, "every", 0));
-pub static VT_EXISTS: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(121, "exists", 0));
-pub static VT_EXPORT: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(122, "export", 0));
-pub static VT_EXPRESSIONTEXT: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(123, "expressiontext", 0));
-pub static VT_FOREACH: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(125, "foreach", 0));
-pub static VT_HYPERLINK: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(128, "hyperlink", 0));
-pub static VT_IFKNOWNELSE: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(130, "ifknownelse", 0));
-pub static VT_INCLUDE: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(131, "include", 0));
-pub static VT_KNOWN: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(138, "known", 0));
-pub static VT_KNOWNTRUE: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(139, "knowntrue", 0));
-pub static VT_LABEL: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(140, "label", 0));
-pub static VT_LIST: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(141, "list", 0));
-pub static VT_LOWER: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(142, "lower", 0));
-pub static VT_MARK: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(143, "mark", 0));
-pub static VT_NONMUTUALAND: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(144, "nonmutualand", 0));
-pub static VT_NONMUTUALOR: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(145, "nonmutualor", 0));
-pub static VT_NONREPEATED: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(146, "nonrepeated", 0));
-pub static VT_NOTE: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(148, "note", 0));
-pub static VT_NOW: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(149, "now", 0));
-pub static VT_OCCURRENCE: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(150, "occurrence", 0));
-pub static VT_ONLYONINPUT: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(151, "onlyoninput", 0));
-pub static VT_ONLYONOUTPUT: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(152, "onlyonoutput", 0));
-pub static VT_ONLYOTHER: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(153, "onlyother", 0));
-pub static VT_OTHER: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(155, "other", 0));
-pub static VT_OTHERSELECTIONS: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(156, "otherselections", 0));
-pub static VT_PICTURE: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(157, "picture", 0));
-pub static VT_PREFIX: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(158, "prefix", 0));
-pub static VT_PRESCRIBEDSELECTIONS: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(159, "prescribedselections", 0));
-pub static VT_PROPER: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(160, "proper", 0));
-pub static VT_PUNCTUATION: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(161, "punctuation", 0));
-pub static VT_REF: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(162, "ref", 0));
-pub static VT_REFERENCE: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(163, "reference", 0));
-pub static VT_RELEVANCE: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(164, "relevance", 0));
-pub static VT_REPEAT: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(165, "repeat", 0));
-pub static VT_REPEATCONTEXT: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(166, "repeatcontext", 0));
-pub static VT_REPEATCOUNTER: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(167, "repeatcounter", 0));
-pub static VT_SELECTIONOPTIONS: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(169, "selectionoptions", 0));
-pub static VT_SENSITIVE: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(170, "sensitive", 0));
-pub static VT_SIMPLIFY: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(171, "simplify", 0));
-pub static VT_SPANRELEVANCE: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(172, "spanrelevance", 0));
-pub static VT_STYLE: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(173, "style", 0));
-pub static VT_SURE: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(174, "sure", 0));
-pub static VT_TEMPLATE: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(175, "template", 0));
-pub static VT_TEMPLATERELEVANCE: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(176, "templaterelevance", 0));
-pub static VT_TEXTFILE: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(177, "textfile", 0));
-pub static VT_TO: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(179, "to", 0));
-pub static VT_TODAY: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(180, "today", 0));
-pub static VT_UNREPEATED: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(182, "unrepeated", 0));
-pub static VT_UPPER: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(183, "upper", 0));
-pub static VT_USING: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(184, "using", 0));
-pub static VT_VALUE: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(185, "value", 0));
-pub static VT_WHERE: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(186, "where", 0));
-pub static VT_WITH: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(187, "with", 0));
 
-pub static VT_UNKNOW: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(998, "unknow", 0));
-pub static VT_EMPTY: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vt(999, "empty", 0));
+#[derive(Debug, Clone, Copy)]
+#[allow(dead_code)]
+pub struct Tag {
+    pub tag : usize,
+    pub name : &'static str,
+    pub num_att: u16,
+}
 
-// #region A Ç Õ E S   S E M Â N T I C A S
-pub static AC_IF: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::action(0, "@If", 3));
-pub static AC_OR: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::action(1, "@Or", 2));
-pub static AC_AND: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::action(2, "@And", 2));
-pub static AC_NOT: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::action(3, "@Not", 1));
-pub static AC_ADDOP: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::action(4, "@AddOp", 0));
-pub static AC_REL: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::action(5, "@Rel", 3));
-pub static AC_ADD: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::action(6, "@Add", 3));
-pub static AC_MUL: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::action(7, "@Mul", 3));
-pub static AC_VARIABLE: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::action(8, "@Variable", 1));
-pub static AC_INTEGER: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::action(9, "@Integer", 0));
-pub static AC_DECIMAL: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::action(10, "@Decimal", 0));
-pub static AC_LITERAL: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::action(11, "@Literal", 0));
-pub static AC_SKIP: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::action(12, "@Skip", 1));
-pub static AC_CALL: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::action(13, "@Call", 2));
-pub static AC_EMPTYLIST: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::action(14, "@EmptyList", 2));
-pub static AC_CREATELIST: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::action(15, "@CreateList", 1));
-pub static AC_INSERTLIST: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::action(16, "@InsertList", 2));
-pub static AC_TRUE: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::action(17, "@True", 0));
-pub static AC_FALSE: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::action(18, "@False", 0));
-pub static AC_PARAMETER: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::action(19, "@Parameter", 1));
-pub static AC_FUNCTION: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::action(20, "@Function", 0));
-pub static AC_MULOP: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::action(21, "@MulOp", 0));
-pub static AC_RELOP: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::action(22, "@RelOp", 0));
-pub static AC_SELECT: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::action(23, "@Select", 1));
-pub static AC_NOPARAMETER: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::action(24, "@NoParameter", 0));
-pub static AC_FIRSTITEM: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::action(25, "@FirstItem", 1));
-pub static AC_INSERTITEM: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::action(26, "@InsertItem", 2));
-pub static AC_SELECTITEM: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::action(27, "@SelectItem", 2));
-pub static AC_THEN: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::action(28, "@Then", 1));
-pub static AC_ELSE: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::action(29, "@Else", 1));
-pub static AC_TEST: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::action(30, "@Test", 1));
-pub static AC_FORMAT: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::action(31, "@Format", 2));
-pub static AC_ECHO: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::action(999, "@Echo", 1));
-pub static AC_DONE: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::action(1000, "@Done", 1));
+impl Tag {
+    pub fn new(tag: usize, name: &'static str, num_att: u16) -> Self {
+        Tag {
+            tag,
+            name,
+            num_att,
+        }
+    }
 
-// #region N Ã O   T E R M I N A I S
-pub static VN_START: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vn(0, "Start", 0));
-pub static VN_EXP: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vn(1, "Exp", 0));
-pub static VN_DISJ: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vn(2, "Disj", 0));
-pub static VN_DISJ_: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vn(3, "Disj'", 1));
-pub static VN_CONJ: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vn(4, "Conj", 0));
-pub static VN_CONJ_: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vn(5, "Conj'", 1));
-pub static VN_NEG: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vn(6, "Neg", 0));
-pub static VN_REL: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vn(7, "Rel", 0));
-pub static VN_REL_: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vn(8, "Rel'", 1));
-pub static VN_ADD: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vn(9, "Add", 0));
-pub static VN_ADD_: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vn(10, "Add'", 1));
-pub static VN_MULTIPLY: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vn(11, "Multiply", 0));
-pub static VN_MULTIPLY_: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vn(12, "Multiply'", 1));
-pub static VN_FACTOR: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vn(13, "Factor", 0));
-pub static VN_LIST: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vn(15, "List", 0));
-pub static VN_LIST_: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vn(16, "List'", 1));
-pub static VN_FUNCTION_: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vn(17, "Function'", 1));
-pub static VN_SELECTIONS: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vn(18, "Selections", 0));
-pub static VN_SELECTIONS_: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vn(19, "Selections'", 1));
-pub static VN_SELITEM: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vn(20, "SelItem", 0));
-pub static VN_SELITEM_: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vn(21, "SelItem'", 1));
-pub static VN_FMTEXP: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vn(22, "FmtExp", 0));
-pub static VN_FMTEXP_: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vn(23, "FmtExp'", 1));
+    pub fn vn(t: usize, name: &'static str, num_att: u16) -> Tag {
+        Tag{ tag: t | VARIABLE, name, num_att }
+    }
+    pub fn vt(t: usize, name: &'static str, num_att: u16) -> Tag {
+        Tag{ tag: t | TERMINAL, name, num_att }
+    }
+    pub fn action(t: usize, name: &'static str, num_att: u16) -> Tag {
+        Tag{ tag: t | ACTION, name, num_att }
+    }
 
-pub static NUMBEROFVARIABLES: LazyLock<AbstractTAG> = LazyLock::new(|| AbstractTAG::vn(24, "", 0));
+    #[allow(dead_code)]
+    #[inline]
+    pub fn to_int(&self) -> usize {
+        self.tag & 0x0FFF
+    }
+    #[inline]
+    pub fn is_variable(&self) -> bool {
+        (self.tag & VARIABLE) == VARIABLE
+    }
+    #[inline]
+    pub fn is_terminal(&self) -> bool {
+        (self.tag & TERMINAL) == TERMINAL
+    }
+    #[inline]
+    pub fn is_action(&self) -> bool {
+        (self.tag & ACTION) == ACTION
+    }
+    #[inline]
+    pub fn get_num_att(&self) -> u16 {
+        self.num_att
+    }
+
+    pub fn to_string(&self) -> String {
+        if self.is_variable() {
+            format!("<{0}>", self.name)
+        } else if self.is_terminal() {
+            format!("\"{}\"", self.name)
+        } else if self.is_action() {
+            format!("@{}", self.name)
+        } else {
+            panic!("Unknown")
+        }
+    }
+}
+
+impl fmt::Display for Tag {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{0}", self.to_string())
+    }
+}

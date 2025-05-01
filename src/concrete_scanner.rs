@@ -1,13 +1,13 @@
 use std::collections::HashMap;
 
-use crate::{abstract_parser::Scanner, abstract_token::AbstractToken, scanner_environment::ScannerEnv};
+use crate::{abstract_parser::Scanner, token::Token, scanner_environment::ScannerEnv};
 
 pub struct ConcreteScanner {
-    reserved_words: HashMap<String, AbstractToken>, // Maps reserved words to their token types
+    reserved_words: HashMap<String, Token>, // Maps reserved words to their token types
 }
 
 impl Scanner for ConcreteScanner {
-    //  Dictionary<string, AbstractToken> reservedWords = new()
+    //  Dictionary<string, Token> reservedWords = new()
     // {
     //     { "alt",  Token.ALT },
     //     { "and",  Token.AND },
@@ -100,12 +100,12 @@ impl Scanner for ConcreteScanner {
     //     { "xor", Token.XOR },
     // };
 
-    fn next_token(&self, _env: &mut ScannerEnv) -> AbstractToken {
+    fn next_token(&self, _env: &mut ScannerEnv) -> Token {
         // Implementation of the next_token method
         // This is where you would implement the logic to return the next token from the input stream
         // For now, we will just return a placeholder token
-        // AbstractToken::new(RELOP) // Placeholder implementation
-        AbstractToken::new(self.reserved_words.get("alt").unwrap().get_tag().clone())
+        // Token::new(RELOP) // Placeholder implementation
+        Token::new(self.reserved_words.get("alt").unwrap().get_tag().clone())
     }
     
     fn initialize(&mut self) {

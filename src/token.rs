@@ -1,98 +1,77 @@
-use crate::abstract_token::AbstractToken;
-use crate::tag;
-use std::sync::LazyLock;
+use std::fmt;
 
-pub static ALT: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_ALT));
-pub static AND: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_AND));
-pub static ANSWERED: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_ANSWERED));
-pub static AS: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_AS));
-pub static ATTACH: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_ATTACH));
-pub static ATTRIBUTE: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_ATTRIBUTE));
-pub static AUTHORNOTE: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_AUTHORNOTE));
-pub static BY: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_BY));
-pub static CAPITALS: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_CAPITALS));
-pub static CELL: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_CELL));
-pub static CLOAKED: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_CLOAKED));
-pub static COLLECT: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_COLLECT));
-pub static COLLECTVALUES: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_COLLECTVALUES));
-pub static COMMITTED: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_COMMITTED));
-pub static DATATYPE: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_DATATYPE));
-pub static DEFERRED: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_DEFERRED));
-pub static DEFINITE: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_DEFINITE));
-pub static DOCTITLE: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_DOCTITLE));
-pub static DOCUMENT: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_DOCUMENT));
-pub static ELSE: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_ELSE));
-pub static EVERY: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_EVERY));
-pub static EXISTS: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_EXISTS));
-pub static EXPORT: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_EXPORT));
-pub static EXPRESSIONTEXT: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_EXPRESSIONTEXT));
-pub static FALSE: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_FALSE));
-pub static FOREACH: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_FOREACH));
-pub static FORMAT: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_FORMAT));
-pub static FROM: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_FROM));
-pub static HYPERLINK: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_HYPERLINK));
-pub static IF: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_IF));
-pub static IFKNOWNELSE: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_IFKNOWNELSE));
-pub static INCLUDE: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_INCLUDE));
-pub static KNOWN: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_KNOWN));
-pub static KNOWNTRUE: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_KNOWNTRUE));
-pub static LABEL: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_LABEL));
-pub static LIST: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_LIST));
-pub static LOWER: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_LOWER));
-pub static MARK: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_MARK));
-pub static NONMUTUALAND: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_NONMUTUALAND));
-pub static NONMUTUALOR: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_NONMUTUALOR));
-pub static NONREPEATED: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_NONREPEATED));
-pub static NOT: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_NOT));
-pub static NOTE: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_NOTE));
-pub static NOW: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_NOW));
-pub static OCCURRENCE: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_OCCURRENCE));
-pub static ONLYONINPUT: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_ONLYONINPUT));
-pub static ONLYONOUTPUT: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_ONLYONOUTPUT));
-pub static ONLYOTHER: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_ONLYOTHER));
-pub static OR: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_OR));
-pub static OTHER: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_OTHER));
-pub static OTHERSELECTIONS: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_OTHERSELECTIONS));
-pub static PICTURE: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_PICTURE));
-pub static PREFIX: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_PREFIX));
-pub static PRESCRIBEDSELECTIONS: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_PRESCRIBEDSELECTIONS));
-pub static PROPER: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_PROPER));
-pub static PUNCTUATION: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_PUNCTUATION));
-pub static REF: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_REF));
-pub static REFERENCE: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_REFERENCE));
-pub static RELEVANCE: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_RELEVANCE));
-pub static REPEAT: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_REPEAT));
-pub static REPEATCONTEXT: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_REPEATCONTEXT));
-pub static REPEATCOUNTER: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_REPEATCOUNTER));
-pub static SELECT: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_SELECT));
-pub static SELECTIONOPTIONS: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_SELECTIONOPTIONS));
-pub static SENSITIVE: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_SENSITIVE));
-pub static SIMPLIFY: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_SIMPLIFY));
-pub static SPANRELEVANCE: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_SPANRELEVANCE));
-pub static STYLE: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_STYLE));
-pub static SURE: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_SURE));
-pub static TEMPLATE: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_TEMPLATE));
-pub static TEMPLATERELEVANCE: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_TEMPLATERELEVANCE));
-pub static TEXTFILE: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_TEXTFILE));
-pub static THEN: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_THEN));
-pub static TO: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_TO));
-pub static TODAY: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_TODAY));
-pub static TRUE: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_TRUE));
-pub static UNREPEATED: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_UNREPEATED));
-pub static UPPER: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_UPPER));
-pub static USING: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_USING));
-pub static VALUE: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_VALUE));
-pub static WHERE: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_WHERE));
-pub static WITH: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_WITH));
-pub static XOR: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_XOR));
-pub static RELOP: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_RELOP));
-pub static ADDOP: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_ADDOP));
-pub static MULOP: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_MULOP));
-pub static LPAR: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_LPAR));
-pub static RPAR: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_RPAR));
-pub static COMMA: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_COMMA));
-pub static FUNCTION: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_FUNCTION));
+use crate::tag::Tag;
 
-pub static ENDMARK: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_ENDMARK));
-pub static UNKNOW: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_UNKNOW));
-pub static EMPTY: LazyLock<AbstractToken> = LazyLock::new(|| AbstractToken::new(*tag::VT_EMPTY));
+#[derive(Debug, Clone)]
+#[allow(dead_code)]
+pub struct Attribute {
+    pub name: String
+}
+
+
+#[derive(Debug, Clone)]
+pub struct Token {
+    tag: Tag,
+    inherited : Option<Vec<Option<Attribute>>>,
+}
+
+impl Token {
+    pub fn new(tag: Tag) -> Self {
+        Token {
+            tag: tag.clone(),
+            inherited: if tag.get_num_att() > 0 { Some(vec![Option::<Attribute>::None; tag.get_num_att() as usize]) } else { None },
+        }
+    }
+
+    #[inline]
+    pub fn get_tag(&self) -> &Tag {
+        &self.tag
+    }
+
+    pub fn exist_attribute(&self, i: usize) -> bool {
+        self.inherited.is_some() && i < self.inherited.as_ref().unwrap().len()
+    }
+
+    #[allow(dead_code)]
+    pub fn get_attribute(&self, i: usize) -> &Attribute {
+
+        if !self.exist_attribute(i) {
+            panic!("{} deve herdar, pelo menos, {} atributo(s)!", self.to_string(), i + 1);
+        }
+        if self.inherited.as_ref().unwrap()[i].is_none() {
+            panic!("{}[{}] não deve ser nulo!", self.to_string(), i);
+        }
+
+        self.inherited.as_ref().unwrap()[i].as_ref().unwrap()
+    }
+
+    #[allow(dead_code)]
+    pub fn set_attribute(&mut self, i: usize, v: &Attribute) {
+
+        if !self.exist_attribute(i) {
+            panic!("{} deve herdar, pelo menos, {} atributo(s)!", self.to_string(), i + 1);
+        }
+
+        if let Some(inherited) = &mut self.inherited {
+            inherited[i] = Some(v.clone());
+        }
+    }
+
+    pub fn has_complement(&self) -> bool {
+        match self.inherited {
+            Some(_) => true,
+            None => false,
+        }
+    }
+
+    pub fn to_string(&self) -> String {
+        format!("Token {0} {1:?}", self.tag.to_string(), self.inherited)
+    }
+
+}
+
+impl fmt::Display for Token {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{0}", self.to_string())
+    }
+}

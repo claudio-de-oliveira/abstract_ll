@@ -54,4 +54,3 @@ impl<'a> ScannerEnv<'a> {
     }
 
 }
-

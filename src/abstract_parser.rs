@@ -1,13 +1,13 @@
-use crate::{abstract_rule::Rule, abstract_tag::AbstractTAG, abstract_token::AbstractToken, scanner_environment::ScannerEnv};
+use crate::{rule::Rule, tag::Tag, token::Token, scanner_environment::ScannerEnv};
 use array2d::Array2D;
 
 pub trait Scanner {
-    fn next_token(&self, env : &mut ScannerEnv) -> AbstractToken;
+    fn next_token(&self, env : &mut ScannerEnv) -> Token;
     fn initialize(&mut self);
 }
 
 pub trait Semantic {
-    fn execute(&self, action : &AbstractToken);
+    fn execute(&self, action : &Token);
     fn initialize(&mut self);
 }
 
@@ -16,9 +16,9 @@ pub struct AbstractParser<'a> {
     scanner: &'a mut Box<dyn Scanner>,
     semantic: &'a mut Box<dyn Semantic>,
 
-    rules: &'a [Rule], // Array2D storing AbstractTAG elements
-    m: Box<Array2D<i32>>, // Array2D storing AbstractTAG elements
-    end_mark: AbstractTAG,
+    rules: &'a [Rule], // Array2D storing Tag elements
+    m: Box<Array2D<i32>>, // Array2D storing Tag elements
+    end_mark: Tag,
 }
 
 impl<'a> AbstractParser<'a> {
@@ -28,7 +28,7 @@ impl<'a> AbstractParser<'a> {
         number_of_variables: usize,
         scanner_: &'a mut Box<dyn Scanner>,
         semantic_: &'a mut Box<dyn Semantic>,
-        end_mark: AbstractTAG,
+        end_mark: Tag,
     ) -> Self {
 
         let mut m_ = Box::new(Array2D::filled_with(-1, number_of_terminals, number_of_variables));
@@ -68,12 +68,12 @@ impl<'a> AbstractParser<'a> {
     }
 
     #[inline]
-    pub fn get_end_mark(&self) -> &AbstractTAG {
+    pub fn get_end_mark(&self) -> &Tag {
         &self.end_mark
     }
 
     #[allow(dead_code)]
-    fn production(&self, a: AbstractTAG, token: &AbstractToken) -> i32 {
+    fn production(&self, a: Tag, token: &Token) -> i32 {
         let row = a.to_int() as usize;
         let col = token.get_tag().to_int() as usize;
 
@@ -84,7 +84,7 @@ impl<'a> AbstractParser<'a> {
         }
     }
 
-    fn push_rhs(&self, stk: &mut Vec<AbstractTAG>, p: usize) {
+    fn push_rhs(&self, stk: &mut Vec<Tag>, p: usize) {
         // Push the right-hand side of the production rule onto the stack in reverse order
         for i in (0..self.rules[p].rhs.len()).rev() {
             stk.push(self.rules[p].rhs[i].clone());
@@ -94,7 +94,7 @@ impl<'a> AbstractParser<'a> {
 
     pub fn parse(&mut self, vtext: Vec<&str>) -> bool {
 
-        let stk = &mut Vec::<AbstractTAG>::new();
+        let stk = &mut Vec::<Tag>::new();
 
         let scanner_env = &mut ScannerEnv::new(vtext);
 
@@ -103,7 +103,7 @@ impl<'a> AbstractParser<'a> {
 
         self.push_rhs(stk, 0);
 
-        let mut token: AbstractToken = self.scanner.next_token(scanner_env);
+        let mut token: Token = self.scanner.next_token(scanner_env);
 
         loop {
             let a = stk.pop().unwrap_or(self.end_mark.clone());

@@ -1,24 +1,31 @@
-mod abstract_tag;
+mod tag;
 mod test;
-pub mod abstract_token;
+pub mod token;
 pub mod abstract_parser;
-pub mod abstract_rule;
+pub mod rule;
 pub mod scanner_environment;
 pub mod concrete_scanner;
-mod tag;
-mod token;
+mod ce_tag;
+mod ce_token;
+mod scanner;
+
+use scanner::{CeScanner, Scanner};
 
 #[warn(non_snake_case)]
-use abstract_tag::AbstractTAG;
+use tag::Tag;
 
 fn main() {
-    let vn = AbstractTAG::vn(1, "variable", 1);
-    let vt = AbstractTAG::vt(1, "terminal", 1);
-    let ac = AbstractTAG::action(1, "action", 1);
-    println!("{:?}", *tag::VT_ALT);
-    println!("{:?}", *tag::VT_ANSWERED);
-    println!("{:?}", *token::ALT);
-    println!("{:?}", *token::ANSWERED);
+    // let vn = Tag::vn(1, "variable", 1);
+    // let vt = Tag::vt(1, "terminal", 1);
+    // let ac = Tag::action(1, "action", 1);
+    // println!("{:?}", *ce_tag::VT_ALT);
+    // println!("{:?}", *ce_tag::VT_ANSWERED);
+    // println!("{:?}", *ce_token::ALT);
+    // println!("{:?}", *ce_token::ANSWERED);
+    // let mut env = scanner_environment::ScannerEnv::new(vec!["Claudio de Oliveira"]);
+    let scanner = CeScanner::new();
+    println!("{:#?}", scanner);
+
     // println!("{}", vn);
     // println!("{}", vt);
     // println!("{}", ac);
