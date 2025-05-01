@@ -6,16 +6,16 @@ pub const TERMINAL : usize = 0x4000;
 pub const ACTION : usize = 0x2000;
 
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 #[allow(dead_code)]
-pub struct AbstractTAG<'a> {
+pub struct AbstractTAG {
     pub tag : usize,
-    pub name : &'a str,
+    pub name : &'static str,
     pub num_att: u16,
 }
 
-impl<'a> AbstractTAG<'a> {
-    pub fn new(tag: usize, name: &'a str, num_att: u16) -> Self {
+impl AbstractTAG {
+    pub fn new(tag: usize, name: &'static str, num_att: u16) -> Self {
         AbstractTAG {
             tag,
             name,
@@ -23,13 +23,13 @@ impl<'a> AbstractTAG<'a> {
         }
     }
 
-    pub fn vn(t: usize, name: &'static str, num_att: u16) -> AbstractTAG<'static> {
+    pub fn vn(t: usize, name: &'static str, num_att: u16) -> AbstractTAG {
         AbstractTAG{ tag: t | VARIABLE, name, num_att }
     }
-    pub fn vt(t: usize, name: &'static str, num_att: u16) -> AbstractTAG<'static> {
+    pub fn vt(t: usize, name: &'static str, num_att: u16) -> AbstractTAG {
         AbstractTAG{ tag: t | TERMINAL, name, num_att }
     }
-    pub fn action(t: usize, name: &'static str, num_att: u16) -> AbstractTAG<'static> {
+    pub fn action(t: usize, name: &'static str, num_att: u16) -> AbstractTAG {
         AbstractTAG{ tag: t | ACTION, name, num_att }
     }
 
@@ -68,8 +68,8 @@ impl<'a> AbstractTAG<'a> {
     }
 }
 
-impl fmt::Display for AbstractTAG<'_> {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+impl fmt::Display for AbstractTAG {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{0}", self.to_string())
     }
 }

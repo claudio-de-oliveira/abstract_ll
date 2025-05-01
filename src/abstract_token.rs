@@ -12,12 +12,12 @@ pub struct Attribute {
 
 #[derive(Debug)]
 pub struct AbstractToken {
-    tag: AbstractTAG<'static>,
+    tag: AbstractTAG,
     inherited : Option<Vec<Option<Attribute>>>,
 }
 
 impl AbstractToken {
-    pub fn new(tag: AbstractTAG<'static>) -> Self {
+    pub fn new(tag: AbstractTAG) -> Self {
         AbstractToken {
             tag: tag.clone(),
             inherited: if tag.get_num_att() > 0 { Some(vec![Option::<Attribute>::None; tag.get_num_att() as usize]) } else { None },
@@ -25,7 +25,7 @@ impl AbstractToken {
     }
 
     #[inline]
-    pub fn get_tag(&self) -> &AbstractTAG<'static> {
+    pub fn get_tag(&self) -> &AbstractTAG {
         &self.tag
     }
 
@@ -66,7 +66,7 @@ impl AbstractToken {
     }
 
     pub fn to_string(&self) -> String {
-        format!("{0} {1:?}", self.tag.to_string(), self.inherited)
+        format!("Token {0} {1:?}", self.tag.to_string(), self.inherited)
     }
 
 }

@@ -16,19 +16,19 @@ pub struct AbstractParser<'a> {
     scanner: &'a mut Box<dyn Scanner>,
     semantic: &'a mut Box<dyn Semantic>,
 
-    rules: &'a [Rule<'a>], // Array2D storing AbstractTAG elements
+    rules: &'a [Rule], // Array2D storing AbstractTAG elements
     m: Box<Array2D<i32>>, // Array2D storing AbstractTAG elements
-    end_mark: AbstractTAG<'a>,
+    end_mark: AbstractTAG,
 }
 
 impl<'a> AbstractParser<'a> {
     pub fn new(
-        rules: &'a [Rule<'a>],
+        rules: &'a [Rule],
         number_of_terminals: usize,
         number_of_variables: usize,
         scanner_: &'a mut Box<dyn Scanner>,
         semantic_: &'a mut Box<dyn Semantic>,
-        end_mark: AbstractTAG<'a>,
+        end_mark: AbstractTAG,
     ) -> Self {
 
         let mut m_ = Box::new(Array2D::filled_with(-1, number_of_terminals, number_of_variables));
@@ -68,12 +68,12 @@ impl<'a> AbstractParser<'a> {
     }
 
     #[inline]
-    pub fn get_end_mark(&'a self) -> &'a AbstractTAG<'a> {
+    pub fn get_end_mark(&self) -> &AbstractTAG {
         &self.end_mark
     }
 
     #[allow(dead_code)]
-    fn production(&self, a: AbstractTAG<'a>, token: &AbstractToken) -> i32 {
+    fn production(&self, a: AbstractTAG, token: &AbstractToken) -> i32 {
         let row = a.to_int() as usize;
         let col = token.get_tag().to_int() as usize;
 
@@ -84,7 +84,7 @@ impl<'a> AbstractParser<'a> {
         }
     }
 
-    fn push_rhs(&self, stk: &mut Vec<AbstractTAG<'a>>, p: usize) {
+    fn push_rhs(&self, stk: &mut Vec<AbstractTAG>, p: usize) {
         // Push the right-hand side of the production rule onto the stack in reverse order
         for i in (0..self.rules[p].rhs.len()).rev() {
             stk.push(self.rules[p].rhs[i].clone());
@@ -94,7 +94,7 @@ impl<'a> AbstractParser<'a> {
 
     pub fn parse(&mut self, vtext: Vec<&str>) -> bool {
 
-        let stk = &mut Vec::<AbstractTAG<'a>>::new();
+        let stk = &mut Vec::<AbstractTAG>::new();
 
         let scanner_env = &mut ScannerEnv::new(vtext);
 
