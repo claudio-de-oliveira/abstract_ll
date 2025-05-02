@@ -1,5 +1,4 @@
 use std::fmt;
-
 use crate::tag::Tag;
 
 #[derive(Debug, Clone)]
@@ -11,15 +10,22 @@ pub struct Attribute {
 
 #[derive(Debug, Clone)]
 pub struct Token {
-    tag: Tag,
+    tag: &'static Tag,
     inherited : Option<Vec<Option<Attribute>>>,
 }
 
 impl Token {
-    pub fn new(tag: Tag) -> Self {
-        Token {
-            tag: tag.clone(),
-            inherited: if tag.get_num_att() > 0 { Some(vec![Option::<Attribute>::None; tag.get_num_att() as usize]) } else { None },
+    pub fn from_tag(tag: &'static Tag) -> Token {
+        if tag.get_num_att() > 0 { 
+            Token {
+                tag,
+                inherited: Some(vec![Option::<Attribute>::None; tag.get_num_att() as usize]),
+            }
+        } else {
+            Token {
+                tag,
+                inherited: None,
+            }
         }
     }
 
@@ -29,7 +35,7 @@ impl Token {
     }
 
     pub fn exist_attribute(&self, i: usize) -> bool {
-        self.inherited.is_some() && i < self.inherited.as_ref().unwrap().len()
+        self.inherited.is_some() && i < self.tag.get_num_att()
     }
 
     #[allow(dead_code)]
@@ -64,8 +70,8 @@ impl Token {
         }
     }
 
-    pub fn to_string(&self) -> String {
-        format!("Token {0} {1:?}", self.tag.to_string(), self.inherited)
+    fn to_string(&self) -> String {
+        format!("{0} {1:?}", self.tag.to_string(), self.inherited)
     }
 
 }

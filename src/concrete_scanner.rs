@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::{abstract_parser::Scanner, token::Token, scanner_environment::ScannerEnv};
+use crate::{parser::Scanner, token::Token, scanner_environment::ScannerEnv};
 
 pub struct ConcreteScanner {
     reserved_words: HashMap<String, Token>, // Maps reserved words to their token types

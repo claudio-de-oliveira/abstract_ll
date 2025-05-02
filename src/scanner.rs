@@ -490,8 +490,8 @@ impl Scanner for CeScanner {
     }
 }
 
-impl Default for CeScanner {
-    fn default() -> Self {
-        Self::new()
-    }
-}
+// impl Default for CeScanner {
+//     fn default() -> Self {
+//         Self::new()
+//     }
+// }
