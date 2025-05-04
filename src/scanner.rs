@@ -1,119 +1,237 @@
-use std::default;
-use std::{fmt, ptr::eq};
 use std::collections::HashMap;
 
-use crate::{ce_tag, ce_token, scanner_environment::ScannerEnv, tag::Tag, token::Token};
+use crate::grammar::{self, AddOpType, DecimalToken, FunctionToken, IntegerToken, LiteralToken, MulOpToken, MulOpType, RelOpToken, RelOpType, UnknowToken, VariableToken };
+use crate::tag::Tag;
+use crate::token::{ComplementTrait, SimpleToken, ValuedToken};
+use crate::variable::Variable;
+use crate::{scanner_environment::ScannerEnv, token::Token};
 
 pub trait Scanner {
     fn new() -> Self;
-    fn next_token(&self, env : &mut ScannerEnv) -> Token;
+    fn next_token(&self, env : &mut ScannerEnv, symbol_table : &HashMap<String, Box<dyn Token>>, variables : &HashMap<String, Variable>) -> Box<dyn Token>;
 }
 
-
-#[derive(Debug)]
 pub struct CeScanner {
-    pub reserved_words: HashMap<&'static str, Token>
+    pub reserved_words: HashMap<&'static str, Tag>
 }
 
-impl fmt::Display for CeScanner {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{:#?}", self.reserved_words)
-    }
-}
+// impl fmt::Display for CeScanner {
+//     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+//         write!(f, "{:#?}", self.reserved_words)
+//     }
+// }
 
 impl Scanner for CeScanner {
 
     fn new() -> Self {
         let reserved_words = HashMap::from([
-            ("alt", (*ce_token::ALT).clone()),
-            ("and", (*ce_token::AND).clone()),
-            ("answered", (*ce_token::ANSWERED).clone()),
-            ("as", (*ce_token::AS).clone()),
-            ("attach", (*ce_token::ATTACH).clone()),
-            ("attribute", (*ce_token::ATTRIBUTE).clone()),
-            ("authornote", (*ce_token::AUTHORNOTE).clone()),
-            ("by", (*ce_token::BY).clone()),
-            ("capitals", (*ce_token::CAPITALS).clone()),
-            ("cell", (*ce_token::CELL).clone()),
-            ("cloaked", (*ce_token::CLOAKED).clone()),
-            ("collect", (*ce_token::COLLECT).clone()),
-            ("collectvalues", (*ce_token::COLLECTVALUES).clone()),
-            ("committed", (*ce_token::COMMITTED).clone()),
-            ("datatype", (*ce_token::DATATYPE).clone()),
-            ("deferred", (*ce_token::DEFERRED).clone()),
-            ("definite", (*ce_token::DEFINITE).clone()),
-            ("doctitle", (*ce_token::DOCTITLE).clone()),
-            ("document", (*ce_token::DOCUMENT).clone()),
-            ("else", (*ce_token::ELSE).clone()),
-            ("every", (*ce_token::EVERY).clone()),
-            ("exists", (*ce_token::EXISTS).clone()),
-            ("export", (*ce_token::EXPORT).clone()),
-            ("expressiontext", (*ce_token::EXPRESSIONTEXT).clone()),
-            ("false", (*ce_token::FALSE).clone()),
-            ("foreach", (*ce_token::FOREACH).clone()),
-            ("format", (*ce_token::FORMAT).clone()),
-            ("from", (*ce_token::FROM).clone()),
-            ("hyperlink", (*ce_token::HYPERLINK).clone()),
-            ("if", (*ce_token::IF).clone()),                           // test that a value equals another value
-            ("ifknownelse", (*ce_token::IFKNOWNELSE).clone()),
-            ("include", (*ce_token::INCLUDE).clone()),
-            ("is", (*ce_token::RELOP).clone()),                       // test that a value equals another value
-            ("isatleast", (*ce_token::RELOP).clone()),                 // test that a value is more than or equal to another value
-            ("isatmost", (*ce_token::RELOP).clone()),                 // test that a value is less than or equal to another value
-            ("islessthan", (*ce_token::RELOP).clone()),               // test that a value is less than another value
-            ("ismorethan", (*ce_token::RELOP).clone()),               // test that a value is more than another value
-            ("isnot", (*ce_token::RELOP).clone()),                    // test that a value is not equal to another value
-            ("known", (*ce_token::KNOWN).clone()),
-            ("knowntrue", (*ce_token::KNOWNTRUE).clone()),
-            ("label", (*ce_token::LABEL).clone()),
-            ("list", (*ce_token::LIST).clone()),
-            ("lower", (*ce_token::LOWER).clone()),
-            ("mark", (*ce_token::MARK).clone()),
-            ("nonmutualand", (*ce_token::NONMUTUALAND).clone()),
-            ("nonmutualor", (*ce_token::NONMUTUALOR).clone()),
-            ("nonrepeated", (*ce_token::NONREPEATED).clone()),
-            ("not", (*ce_token::NOT).clone()),
-            ("note", (*ce_token::NOTE).clone()),
-            ("now", (*ce_token::NOW).clone()),
-            ("occurrence", (*ce_token::OCCURRENCE).clone()),
-            ("onlyoninput", (*ce_token::ONLYONINPUT).clone()),
-            ("onlyonoutput", (*ce_token::ONLYONOUTPUT).clone()),
-            ("onlyother", (*ce_token::ONLYOTHER).clone()),
-            ("or", (*ce_token::OR).clone()),
-            ("other", (*ce_token::OTHER).clone()),
-            ("otherselections", (*ce_token::OTHERSELECTIONS).clone()),
-            ("picture", (*ce_token::PICTURE).clone()),
-            ("prefix", (*ce_token::PREFIX).clone()),
-            ("prescribedselections", (*ce_token::PRESCRIBEDSELECTIONS).clone()),
-            ("proper", (*ce_token::PROPER).clone()),
-            ("punctuation", (*ce_token::PUNCTUATION).clone()),
-            ("ref", (*ce_token::REF).clone()),
-            ("reference", (*ce_token::REFERENCE).clone()),
-            ("relevance", (*ce_token::RELEVANCE).clone()),
-            // ("repeat",  new FunctionToken("repeat")).clone()),
-            ("repeatcontext", (*ce_token::REPEATCONTEXT).clone()),
-            ("repeatcounter", (*ce_token::REPEATCOUNTER).clone()),
-            ("select", (*ce_token::SELECT).clone()),
-            ("selectionoptions", (*ce_token::SELECTIONOPTIONS).clone()),
-            ("sensitive", (*ce_token::SENSITIVE).clone()),
-            ("simplify", (*ce_token::SIMPLIFY).clone()),
-            ("spanrelevance", (*ce_token::SPANRELEVANCE).clone()),
-            ("style", (*ce_token::STYLE).clone()),
-            ("sure", (*ce_token::SURE).clone()),
-            ("template", (*ce_token::TEMPLATE).clone()),
-            ("templaterelevance", (*ce_token::TEMPLATERELEVANCE).clone()),
-            ("textfile", (*ce_token::TEXTFILE).clone()),
-            ("then", (*ce_token::THEN).clone()),
-            ("to", (*ce_token::TO).clone()),
-            ("today", (*ce_token::TODAY).clone()),
-            ("true", (*ce_token::TRUE).clone()),
-            // ("unrepeated", new FunctionToken("unrepeated")).clone()),
-            ("upper", (*ce_token::UPPER).clone()),
-            ("using", (*ce_token::USING).clone()),
-            ("value", (*ce_token::VALUE).clone()),
-            ("where", (*ce_token::WHERE).clone()),
-            ("with", (*ce_token::WITH).clone()),
-            ("xor", (*ce_token::XOR).clone())
+            ("alt", grammar::VT_ALT),
+            ("and", grammar::VT_AND),
+            ("answered", grammar::VT_ANSWERED),
+            ("as", grammar::VT_AS),
+            ("attach", grammar::VT_ATTACH),
+            ("attribute", grammar::VT_ATTRIBUTE),
+            ("authornote", grammar::VT_AUTHORNOTE),
+            ("by", grammar::VT_BY),
+            ("capitals", grammar::VT_CAPITALS),
+            ("cell", grammar::VT_CELL),
+            ("cloaked", grammar::VT_CLOAKED),
+            ("collect", grammar::VT_COLLECT),
+            ("collectvalues", grammar::VT_COLLECTVALUES),
+            ("committed", grammar::VT_COMMITTED),
+            ("datatype", grammar::VT_DATATYPE),
+            ("deferred", grammar::VT_DEFERRED),
+            ("definite", grammar::VT_DEFINITE),
+            ("doctitle", grammar::VT_DOCTITLE),
+            ("document", grammar::VT_DOCUMENT),
+            ("else", grammar::VT_ELSE),
+            ("every", grammar::VT_EVERY),
+            ("exists", grammar::VT_EXISTS),
+            ("export", grammar::VT_EXPORT),
+            ("expressiontext", grammar::VT_EXPRESSIONTEXT),
+            ("false", grammar::VT_FALSE),
+            ("foreach", grammar::VT_FOREACH),
+            ("format", grammar::VT_FORMAT),
+            ("from", grammar::VT_FROM),
+            ("hyperlink", grammar::VT_HYPERLINK),
+            ("and", grammar::VT_AND),
+            ("if", grammar::VT_IF),                           // test that a value equals another value
+            ("ifknownelse", grammar::VT_IFKNOWNELSE),
+            ("include", grammar::VT_INCLUDE),
+            // ("is", grammar::VT_RELOP),                       // test that a value equals another value
+            // ("isatleast", grammar::VT_RELOP),                 // test that a value is more than or equal to another value
+            // ("isatmost", grammar::VT_RELOP),                 // test that a value is less than or equal to another value
+            // ("islessthan", grammar::VT_RELOP),               // test that a value is less than another value
+            // ("ismorethan", grammar::VT_RELOP),               // test that a value is more than another value
+            ("isnot", grammar::VT_RELOP),                    // test that a value is not equal to another value
+            ("known", grammar::VT_KNOWN),
+            ("knowntrue", grammar::VT_KNOWNTRUE),
+            ("label", grammar::VT_LABEL),
+            ("list", grammar::VT_LIST),
+            ("lower", grammar::VT_LOWER),
+            ("mark", grammar::VT_MARK),
+            ("nonmutualand", grammar::VT_NONMUTUALAND),
+            ("nonmutualor", grammar::VT_NONMUTUALOR),
+            ("nonrepeated", grammar::VT_NONREPEATED),
+            ("not", grammar::VT_NOT),
+            ("note", grammar::VT_NOTE),
+            ("now", grammar::VT_NOW),
+            ("occurrence", grammar::VT_OCCURRENCE),
+            ("onlyoninput", grammar::VT_ONLYONINPUT),
+            ("onlyonoutput", grammar::VT_ONLYONOUTPUT),
+            ("onlyother", grammar::VT_ONLYOTHER),
+            ("or", grammar::VT_OR),
+            ("otherselections", grammar::VT_OTHERSELECTIONS),
+            ("picture", grammar::VT_PICTURE),
+            ("prefix", grammar::VT_PREFIX),
+            ("prescribedselections", grammar::VT_PRESCRIBEDSELECTIONS),
+            ("proper", grammar::VT_PROPER),
+            ("punctuation", grammar::VT_PUNCTUATION),
+            ("ref", grammar::VT_REF),
+            ("reference", grammar::VT_REFERENCE),
+            ("relevance", grammar::VT_RELEVANCE),
+            ("answered", grammar::VT_ANSWERED),
+            ("alt", grammar::VT_ALT),
+            ("and", grammar::VT_AND),
+            ("answered", grammar::VT_ANSWERED),
+            ("as", grammar::VT_AS),
+            ("attach", grammar::VT_ATTACH),
+            ("attribute", grammar::VT_ATTRIBUTE),
+            ("authornote", grammar::VT_AUTHORNOTE),
+            ("by", grammar::VT_BY),
+            ("capitals", grammar::VT_CAPITALS),
+            ("cell", grammar::VT_CELL),
+            ("cloaked", grammar::VT_CLOAKED),
+            ("collect", grammar::VT_COLLECT),
+            ("collectvalues", grammar::VT_COLLECTVALUES),
+            ("committed", grammar::VT_COMMITTED),
+            ("datatype", grammar::VT_DATATYPE),
+            ("deferred", grammar::VT_DEFERRED),
+            ("definite", grammar::VT_DEFINITE),
+            ("doctitle", grammar::VT_DOCTITLE),
+            ("document", grammar::VT_DOCUMENT),
+            ("else", grammar::VT_ELSE),
+            ("every", grammar::VT_EVERY),
+            ("exists", grammar::VT_EXISTS),
+            ("export", grammar::VT_EXPORT),
+            ("expressiontext", grammar::VT_EXPRESSIONTEXT),
+            ("false", grammar::VT_FALSE),
+            ("foreach", grammar::VT_FOREACH),
+            ("format", grammar::VT_FORMAT),
+            ("from", grammar::VT_FROM),
+            ("hyperlink", grammar::VT_HYPERLINK),
+            ("as", grammar::VT_AS),
+            ("attach", grammar::VT_ATTACH),
+            ("attribute", grammar::VT_ATTRIBUTE),
+            ("authornote", grammar::VT_AUTHORNOTE),
+            ("by", grammar::VT_BY),
+            ("capitals", grammar::VT_CAPITALS),
+            ("cell", grammar::VT_CELL),
+            ("cloaked", grammar::VT_CLOAKED),
+            ("collect", grammar::VT_COLLECT),
+            ("collectvalues", grammar::VT_COLLECTVALUES),
+            ("committed", grammar::VT_COMMITTED),
+            ("datatype", grammar::VT_DATATYPE),
+            ("deferred", grammar::VT_DEFERRED),
+            ("definite", grammar::VT_DEFINITE),
+            ("doctitle", grammar::VT_DOCTITLE),
+            ("document", grammar::VT_DOCUMENT),
+            ("else", grammar::VT_ELSE),
+            ("every", grammar::VT_EVERY),
+            ("exists", grammar::VT_EXISTS),
+            ("export", grammar::VT_EXPORT),
+            ("expressiontext", grammar::VT_EXPRESSIONTEXT),
+            ("false", grammar::VT_FALSE),
+            ("foreach", grammar::VT_FOREACH),
+            ("format", grammar::VT_FORMAT),
+            ("from", grammar::VT_FROM),
+            ("hyperlink", grammar::VT_HYPERLINK),
+            ("as", grammar::VT_AS),
+            ("attach", grammar::VT_ATTACH),
+            ("attribute", grammar::VT_ATTRIBUTE),
+            ("authornote", grammar::VT_AUTHORNOTE),
+            ("by", grammar::VT_BY),
+            ("capitals", grammar::VT_CAPITALS),
+            ("cell", grammar::VT_CELL),
+            ("cloaked", grammar::VT_CLOAKED),
+            ("collect", grammar::VT_COLLECT),
+            ("collectvalues", grammar::VT_COLLECTVALUES),
+            ("committed", grammar::VT_COMMITTED),
+            ("datatype", grammar::VT_DATATYPE),
+            ("deferred", grammar::VT_DEFERRED),
+            ("definite", grammar::VT_DEFINITE),
+            ("doctitle", grammar::VT_DOCTITLE),
+            ("document", grammar::VT_DOCUMENT),
+            ("else", grammar::VT_ELSE),
+            ("every", grammar::VT_EVERY),
+            ("exists", grammar::VT_EXISTS),
+            ("export", grammar::VT_EXPORT),
+            ("expressiontext", grammar::VT_EXPRESSIONTEXT),
+            ("false", grammar::VT_FALSE),
+            ("foreach", grammar::VT_FOREACH),
+            ("format", grammar::VT_FORMAT),
+            ("from", grammar::VT_FROM),
+            ("hyperlink", grammar::VT_HYPERLINK),
+            ("if", grammar::VT_IF),                           // test that a value equals another value
+            ("ifknownelse", grammar::VT_IFKNOWNELSE),
+            ("include", grammar::VT_INCLUDE),
+            ("is", grammar::VT_RELOP),                       // test that a value equals another value
+            ("isatleast", grammar::VT_RELOP),                 // test that a value is more than or equal to another value
+            ("isatmost", grammar::VT_RELOP),                 // test that a value is less than or equal to another value
+            ("islessthan", grammar::VT_RELOP),               // test that a value is less than another value
+            ("ismorethan", grammar::VT_RELOP),               // test that a value is more than another value
+            ("isnot", grammar::VT_RELOP),                    // test that a value is not equal to another value
+            ("known", grammar::VT_KNOWN),
+            ("knowntrue", grammar::VT_KNOWNTRUE),
+            ("label", grammar::VT_LABEL),
+            ("list", grammar::VT_LIST),
+            ("lower", grammar::VT_LOWER),
+            ("mark", grammar::VT_MARK),
+            ("nonmutualand", grammar::VT_NONMUTUALAND),
+            ("nonmutualor", grammar::VT_NONMUTUALOR),
+            ("nonrepeated", grammar::VT_NONREPEATED),
+            ("not", grammar::VT_NOT),
+            ("note", grammar::VT_NOTE),
+            ("now", grammar::VT_NOW),
+            ("occurrence", grammar::VT_OCCURRENCE),
+            ("onlyoninput", grammar::VT_ONLYONINPUT),
+            ("onlyonoutput", grammar::VT_ONLYONOUTPUT),
+            ("onlyother", grammar::VT_ONLYOTHER),
+            ("or", grammar::VT_OR),
+            ("other", grammar::VT_OTHER),
+            ("otherselections", grammar::VT_OTHERSELECTIONS),
+            ("picture", grammar::VT_PICTURE),
+            ("prefix", grammar::VT_PREFIX),
+            ("prescribedselections", grammar::VT_PRESCRIBEDSELECTIONS),
+            ("proper", grammar::VT_PROPER),
+            ("punctuation", grammar::VT_PUNCTUATION),
+            ("ref", grammar::VT_REF),
+            ("reference", grammar::VT_REFERENCE),
+            ("relevance", grammar::VT_RELEVANCE),
+            // ("repeat",  new FunctionToken("repeat")),
+            ("repeatcontext", grammar::VT_REPEATCONTEXT),
+            ("repeatcounter", grammar::VT_REPEATCOUNTER),
+            ("select", grammar::VT_SELECT),
+            ("selectionoptions", grammar::VT_SELECTIONOPTIONS),
+            ("sensitive", grammar::VT_SENSITIVE),
+            ("simplify", grammar::VT_SIMPLIFY),
+            ("spanrelevance", grammar::VT_SPANRELEVANCE),
+            ("style", grammar::VT_STYLE),
+            ("sure", grammar::VT_SURE),
+            ("template", grammar::VT_TEMPLATE),
+            ("templaterelevance", grammar::VT_TEMPLATERELEVANCE),
+            ("textfile", grammar::VT_TEXTFILE),
+            ("then", grammar::VT_THEN),
+            ("to", grammar::VT_TO),
+            ("today", grammar::VT_TODAY),
+            ("true", grammar::VT_TRUE),
+            // ("unrepeated", new FunctionToken("unrepeated")),
+            ("upper", grammar::VT_UPPER),
+            ("using", grammar::VT_USING),
+            ("value", grammar::VT_VALUE),
+            ("where", grammar::VT_WHERE),
+            ("with", grammar::VT_WITH),
+            ("xor", grammar::VT_XOR),
             ]);
 
         CeScanner {
@@ -121,7 +239,7 @@ impl Scanner for CeScanner {
         }
     }
 
-    fn next_token(&self, env : &mut ScannerEnv) -> Token {
+    fn next_token(&self, env : &mut ScannerEnv, symbol_table: &HashMap<String, Box<dyn Token>>, variables : &HashMap<String, Variable>) -> Box<dyn Token> {
         let mut lexema: String = String::new();
         let mut state = 0;
         let mut ch: char;
@@ -247,30 +365,66 @@ impl Scanner for CeScanner {
 
                     lexema = lexema.to_lowercase();
 
-                    // if (((Environment)environment).SymbolTable.ContainsKey(lexema.ToLower()))
-                    //     return ((Environment)environment).SymbolTable[lexema.ToLower()];
+                    if symbol_table.contains_key(lexema.as_str()) {
+                        panic!("Token already exists");
+                        //let token = symbol_table.get(lexema.as_str()).unwrap();
+                        // return Box::new(*token.clone());
+                    }
 
                     if self.reserved_words.contains_key(lexema.as_str()) {
-                        let token = self.reserved_words.get(lexema.as_str()).unwrap();
-                        return token.clone();
+                        let tag = self.reserved_words.get(lexema.as_str()).unwrap();
+                        return match lexema.as_str() {
+                            "is" => Box::new(RelOpToken::create(*tag, RelOpType::Is)),
+                            "isatleast" => Box::new(RelOpToken::create(*tag, RelOpType::IsAtLeast)),
+                            "isatmost" => Box::new(RelOpToken::create(*tag, RelOpType::IsAtMost)),
+                            "islessthan" => Box::new(RelOpToken::create(*tag, RelOpType::IsLessThan)),
+                            "ismorethan" => Box::new(RelOpToken::create(*tag, RelOpType::IsMoreThan)),
+                            _ => Box::new(SimpleToken::from_tag(*tag)),
+                        };
                     }
 
                     {
-                         let token = self.reserved_words.get(lexema.as_str()).unwrap();
-                         if token.get_tag().tag == ce_tag::VT_RELOP.tag {
-                             // return new RelOpToken(lexema);
+                         let tag = self.reserved_words.get(lexema.as_str());
+
+                         match tag {
+                            Some(t) => {
+                                // if *t == grammar::VT_RELOP {
+                                //     match lexema.as_str() {
+                                //         "is" => return Box::new(RelOpToken::create(&grammar::VT_RELOP, RelOpType::Is, )),
+                                //         "isatleast" => return Box::new(RelOpToken::create(&grammar::VT_RELOP, RelOpType::IsAtLeast, )),
+                                //         "isatmost" => return Box::new(RelOpToken::create(&grammar::VT_RELOP, RelOpType::IsAtMost, )),
+                                //         "islessthan" => return Box::new(RelOpToken::create(&grammar::VT_RELOP, RelOpType::IsLessThan, )),
+                                //         "ismorethan" => return Box::new(RelOpToken::create(&grammar::VT_RELOP, RelOpType::IsMoreThan, )),
+                                //         _ => {}
+                                //     }
+                                //     // return Box::new(ValuedToken::create(RelOpType::LessThan, ));
+                                // }
+                                if *t == grammar::VT_ADDOP {
+                                    return match lexema.as_str() {
+                                        // "and" => return Box::new(RelOpToken::create(&grammar::VT_ADDOP, RelOpType::And, )),
+                                        // "or" => return Box::new(RelOpToken::create(&grammar::VT_ADDOP, RelOpType::Or, )),
+                                        _ => Box::new(UnknowToken::create(grammar::VT_UNKNOW, lexema)),
+                                    }
+                                    // return Box::new(AddOpToken::create(lexema));
+                                }
+                                if *t == grammar::VT_MULOP {
+                                    return match lexema.as_str() {
+                                        // "not" => return Box::new(RelOpToken::create(&grammar::VT_MULOP, RelOpType::Not, )),
+                                        _ => Box::new(UnknowToken::create(grammar::VT_UNKNOW, lexema)),
+                                    }
+                                    // return Box::new(MulOpToken::create(lexema));
+                                }
+                            },
+                            _ => {},
                          }
-                    //     if (token.GetTag() == Tag.ADDOP)
-                    //         return new AddOpToken(lexema);
-                    //     if (token.GetTag() == Tag.MULOP)
-                    //         return new MulOpToken(lexema);
-                    //     return token;
                     }
 
-                    // if (((Environment)environment).Variables.ContainsKey(lexema))
-                    //     return new VariableToken(lexema);
-                    // else
-                    //     return new FunctionToken(lexema);
+                    if variables.contains_key(lexema.as_str()) {
+                        return Box::new(VariableToken::create(grammar::VT_VARIABLE, lexema));
+                    }
+                    else {
+                        return Box::new(FunctionToken::create(grammar::VT_FUNCTION, lexema));
+                    }
                 },
                 3 => {
                     /* Escape character and reserved words.
@@ -367,17 +521,21 @@ impl Scanner for CeScanner {
                     continue;
                 },
                 6 => {
-                    // if (((Environment)environment).Variables.ContainsKey(lexema))
-                    //         return new VariableToken(lexema);
-                    //     else
-                    //         return new UnknowToken(lexema);
+                    if variables.contains_key(lexema.as_str()) {
+                        return Box::new(VariableToken::create(grammar::VT_VARIABLE, lexema));
+                    }   
+                    else {
+                        return Box::new(UnknowToken::create(grammar::VT_UNKNOW, lexema));
+                    }
                 },
                 9 => {
                     env.retract();
-                    // if (((Environment)environment).Variables.ContainsKey(lexema))
-                    //     return new VariableToken(lexema);
-                    // else
-                    //     return new UnknowToken(lexema);
+                    if variables.contains_key(lexema.as_str()) {
+                         return Box::new(VariableToken::create(grammar::VT_VARIABLE, lexema));
+                    }
+                    else {
+                        return Box::new(UnknowToken::create(grammar::VT_UNKNOW, lexema));
+                    }
                 },
                 10 => {
                     ch = env.next_char();
@@ -395,13 +553,21 @@ impl Scanner for CeScanner {
                     continue;
                 },
                 11 => {
-                    // return new LiteralToken(lexema);
+                    return Box::new(LiteralToken::create(grammar::VT_LITERAL, lexema));
                 },
                 20 => {
-                    // return new AddOpToken(lexema);
+                    return match lexema.as_str() {
+                        "+" => return Box::new(ValuedToken::create(grammar::VT_ADDOP, AddOpType::Plus)),
+                        "-" => return Box::new(ValuedToken::create(grammar::VT_ADDOP, AddOpType::Minus)),
+                        _ => Box::new(UnknowToken::create(grammar::VT_UNKNOW, lexema)),
+                    };
                 },
                 21 => {
-                    // return new MulOpToken(lexema);
+                    return match lexema.as_str() {
+                        "*" => return Box::new(ValuedToken::create(grammar::VT_MULOP, MulOpType::Multiply)),
+                        "/" => return Box::new(ValuedToken::create(grammar::VT_MULOP, MulOpType::Divide)),
+                        _ => Box::new(UnknowToken::create(grammar::VT_UNKNOW, lexema)),
+                    };
                 },
                 22 => {
                     ch = env.next_char();
@@ -415,20 +581,20 @@ impl Scanner for CeScanner {
                     continue;
                 },
                 23 => {
-                    //     return new MulOpToken(lexema);
+                    return Box::new(MulOpToken::create(grammar::VT_MULOP, MulOpType::Divide));
                 },
                 24 => {
                     env.retract();
-                    // return new MulOpToken(lexema);
+                    return Box::new(MulOpToken::create(grammar::VT_MULOP, MulOpType::Divide));
                 },
                 30 => {
-                        return (*ce_token::LPAR).clone();
+                    return Box::new(SimpleToken::from_tag(grammar::VT_LPAR));
                 },
                 31 => {
-                    return (*ce_token::RPAR).clone();
+                    return Box::new(SimpleToken::from_tag(grammar::VT_RPAR));
                 },
                 32 => {
-                    return (*ce_token::COMMA).clone();
+                    return Box::new(SimpleToken::from_tag(grammar::VT_COMMA));
                 },
                 40 => {
                     ch = env.next_char();
@@ -470,16 +636,17 @@ impl Scanner for CeScanner {
                 },
                 45 => {
                     env.retract();
-                    // return new IntegerToken(long.Parse(lexema));
+                    return Box::new(IntegerToken::create(grammar::VT_INTEGER, lexema.parse::<isize>().unwrap()));
                 },
                 49 => {
                     env.retract();
-                    // return new DecimalToken(double.Parse(lexema));
+                    return Box::new(DecimalToken::create(grammar::VT_DECIMAL, lexema.parse::<f64>().unwrap()));
                 },
                 100 => {
-                    return (*ce_token::ENDMARK).clone();
+                    return Box::new(SimpleToken::from_tag(grammar::VT_ENDMARK));
                 },
                 999 => {
+                    return Box::new(UnknowToken::create(grammar::VT_UNKNOW, lexema));
                 }
 
                 _ => {
@@ -490,8 +657,3 @@ impl Scanner for CeScanner {
     }
 }
 
-// impl Default for CeScanner {
-//     fn default() -> Self {
-//         Self::new()
-//     }
-// }

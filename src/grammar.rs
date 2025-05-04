@@ -1,7 +1,7 @@
 use array2d::Array2D;
 
 use crate::rule::Rule;
-use crate::token::Token;
+use crate::token::ValuedToken;
 use crate::tag::Tag;
 
 // T E R M I N A I S
@@ -21,12 +21,12 @@ pub static VT_THEN: Tag = Tag { tag: 12, name: "then", num_att: 0, };
 pub static VT_ELSE: Tag = Tag { tag: 13, name: "else", num_att: 0, };
 pub static VT_TRUE: Tag = Tag { tag: 14, name: "true", num_att: 0, };
 pub static VT_FALSE: Tag = Tag { tag: 15, name: "false", num_att: 0, };
-pub static VT_IS: Tag = Tag { tag: 16, name: "is", num_att: 0, };
-pub static VT_ISATLEAST: Tag = Tag { tag: 17, name: "isatleast", num_att: 0, };
-pub static VT_ISATMOST: Tag = Tag { tag: 18, name: "isatmost", num_att: 0, };
-pub static VT_ISLESSTHAN: Tag = Tag { tag: 19, name: "islessthan", num_att: 0, };
-pub static VT_ISMORETHAN: Tag = Tag { tag: 20, name: "ismorethan", num_att: 0, };
-pub static VT_ISNOT: Tag = Tag { tag: 21, name: "isnot", num_att: 0, };
+// pub static VT_IS: Tag = Tag { tag: 16, name: "is", num_att: 0, };
+// pub static VT_ISATLEAST: Tag = Tag { tag: 17, name: "isatleast", num_att: 0, };
+// pub static VT_ISATMOST: Tag = Tag { tag: 18, name: "isatmost", num_att: 0, };
+// pub static VT_ISLESSTHAN: Tag = Tag { tag: 19, name: "islessthan", num_att: 0, };
+// pub static VT_ISMORETHAN: Tag = Tag { tag: 20, name: "ismorethan", num_att: 0, };
+// pub static VT_ISNOT: Tag = Tag { tag: 21, name: "isnot", num_att: 0, };
 pub static VT_AND: Tag = Tag { tag: 22, name: "and", num_att: 0, };
 pub static VT_OR: Tag = Tag { tag: 23, name: "or", num_att: 0, };
 pub static VT_XOR: Tag = Tag { tag: 24, name: "xor", num_att: 0, };
@@ -38,7 +38,7 @@ pub static VT_ENDMARK: Tag = Tag { tag: 29, name: "#", num_att: 0, };
 
 pub static NUMBEROFTERMINALS: Tag = Tag { tag: 30, name: "NUMBEROFTERMINALS", num_att: 0, };
 
-// ABS, ACOS, ASCENDING, ASIN, ATAN, 
+// ABS, ACOS, ASCENDING, ASIN, ATAN,
 pub static VT_ALT: Tag = Tag { tag: 100, name: "alt", num_att: 0, };
 pub static VT_ANSWERED: Tag = Tag { tag: 102, name: "answered", num_att: 0, };
 pub static VT_AS: Tag = Tag { tag: 103, name: "as", num_att: 0, };
@@ -177,18 +177,37 @@ pub static VN_FMTEXP_: Tag = Tag { tag: 23, name: "FmtExp'", num_att: 1, };
 
 pub static NUMBEROFVARIABLES: Tag = Tag { tag: 24, name: "NUMBEROFVARIABLES", num_att: 0, };
 
-struct RelOpToken {
-    lexema: String,
+#[derive(Debug, Clone, PartialEq)]
+pub enum AddOpType {
+    Plus,
+    Minus,
 }
 
-struct UnknowToken(Token, String);
-struct AddOpToken(Token, String);
-struct MulOpToken(Token, String);
-struct VariableToken(Token, String);
-struct FunctionToken(Token, String);
-struct LiteralToken(Token, String);
-struct IntegerToken(Token, String);
-struct DecimalToken(Token, String);
+#[derive(Debug, Clone, PartialEq)]
+pub enum MulOpType {
+    Multiply,
+    Divide,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum RelOpType {
+    Is,
+    IsAtLeast,
+    IsAtMost,
+    IsLessThan,
+    IsMoreThan,
+}
+
+pub type UnknowToken = ValuedToken<String>;
+pub type AddOpToken = ValuedToken<AddOpType>;
+pub type MulOpToken = ValuedToken<MulOpType>;
+pub type RelOpToken = ValuedToken<RelOpType>;
+pub type VariableToken<C> = ValuedToken<C>;
+pub type FunctionToken<C> = ValuedToken<C>;
+pub type LiteralToken = ValuedToken<String>;
+pub type IntegerToken = ValuedToken<isize>;
+pub type DecimalToken = ValuedToken<f64>;
+
 
 pub struct Grammar {
     rules: Vec<Rule>, // Array2D storing Tag elements
@@ -276,14 +295,14 @@ impl Grammar {
                 first: vec![&VT_NOT],
                 follow: vec![&VT_AND, &VT_OR, &VT_THEN, &VT_ELSE, &VT_RPAR, &VT_COMMA, &VT_FORMAT, &VT_ENDMARK],
             },
-            // 11. & <NEG> ::= <REL> 
+            // 11. & <NEG> ::= <REL>
             Rule {
                 lhs: &VN_NEG,
                 rhs: vec![&VN_REL],
                 first: vec![&VT_SELECT, &VT_FUNCTION, &VT_VARIABLE, &VT_INTEGER, &VT_DECIMAL, &VT_LITERAL, &VT_TRUE, &VT_FALSE, &VT_LPAR],
                 follow: vec![&VT_AND, &VT_OR, &VT_THEN, &VT_ELSE, &VT_RPAR, &VT_COMMA, &VT_FORMAT, &VT_ENDMARK],
             },
-            // 12. & <REL> ::= <ADD> <REL'> 
+            // 12. & <REL> ::= <ADD> <REL'>
             Rule {
                 lhs: &VN_REL,
                 rhs: vec![&VN_ADD, &VN_REL_],
@@ -297,49 +316,49 @@ impl Grammar {
                 first: vec![&VT_RELOP],
                 follow: vec![&VT_AND, &VT_OR, &VT_THEN, &VT_ELSE, &VT_RPAR, &VT_COMMA, &VT_FORMAT, &VT_ENDMARK],
             },
-            // 14. & <REL'> ::= @ECHO 
+            // 14. & <REL'> ::= @ECHO
             Rule {
                 lhs: &VN_REL_,
                 rhs: vec![&AC_ECHO],
                 first: vec![&VT_RPAR, &VT_THEN, &VT_ELSE, &VT_OR, &VT_AND, &VT_COMMA, &VT_FORMAT, &VT_ENDMARK],
                 follow: vec![],
             },
-            // 15. & <ADD> ::= <MULTIPLY> <ADD'> 
+            // 15. & <ADD> ::= <MULTIPLY> <ADD'>
             Rule {
                 lhs: &VN_ADD,
                 rhs: vec![&VN_MULTIPLY, &VN_ADD_],
                 first: vec![&VT_SELECT, &VT_FUNCTION, &VT_VARIABLE, &VT_INTEGER, &VT_DECIMAL, &VT_LITERAL, &VT_TRUE, &VT_FALSE, &VT_LPAR],
                 follow: vec![&VT_AND, &VT_OR, &VT_THEN, &VT_ELSE, &VT_RPAR, &VT_COMMA, &VT_FORMAT, &VT_ENDMARK],
             },
-            // 16. & <ADD'> ::= "ADDOP" @ADDOP <MULTIPLY> @ADD <ADD'> 
+            // 16. & <ADD'> ::= "ADDOP" @ADDOP <MULTIPLY> @ADD <ADD'>
             Rule {
                 lhs: &VN_ADD_,
                 rhs: vec![&VT_ADDOP, &AC_ADDOP, &VN_MULTIPLY, &AC_ADD, &VN_ADD_],
                 first: vec![&VT_ADDOP],
                 follow: vec![&VT_AND, &VT_OR, &VT_THEN, &VT_ELSE, &VT_RPAR, &VT_COMMA, &VT_FORMAT, &VT_ENDMARK],
             },
-            // 17. & <ADD'> ::= @ECHO 
+            // 17. & <ADD'> ::= @ECHO
             Rule {
                 lhs: &VN_ADD_,
                 rhs: vec![&AC_ECHO],
                 first: vec![&VT_RPAR, &VT_THEN, &VT_ELSE, &VT_OR, &VT_AND, &VT_RELOP, &VT_COMMA, &VT_FORMAT, &VT_ENDMARK],
                 follow: vec![],
             },
-            // 18. & <MULTIPLY> ::= <F&AC_TOR> <MULTIPLY'> 
+            // 18. & <MULTIPLY> ::= <F&AC_TOR> <MULTIPLY'>
             Rule {
                 lhs: &VN_MULTIPLY,
                 rhs: vec![&VN_FACTOR, &VN_MULTIPLY_],
                 first: vec![&VT_SELECT, &VT_FUNCTION, &VT_VARIABLE, &VT_INTEGER, &VT_DECIMAL, &VT_LITERAL, &VT_TRUE, &VT_FALSE, &VT_LPAR],
                 follow: vec![&VT_ADDOP, &VT_AND, &VT_OR, &VT_THEN, &VT_ELSE, &VT_RPAR, &VT_COMMA, &VT_FORMAT, &VT_ENDMARK],
             },
-            // 19. & <MULTIPLY'> ::= "MULOP" @MULOP <F&AC_TOR> @MUL <MULTIPLY'>  
+            // 19. & <MULTIPLY'> ::= "MULOP" @MULOP <F&AC_TOR> @MUL <MULTIPLY'>
             Rule {
                 lhs: &VN_MULTIPLY_,
                 rhs: vec![&VT_MULOP, &AC_MULOP, &VN_FACTOR, &AC_MUL, &VN_MULTIPLY_],
                 first: vec![&VT_MULOP],
                 follow: vec![&VT_ADDOP, &VT_AND, &VT_OR, &VT_THEN, &VT_ELSE, &VT_RPAR, &VT_COMMA, &VT_FORMAT, &VT_ENDMARK],
             },
-            // 20. & <MULTIPLY'> ::= @ECHO 
+            // 20. & <MULTIPLY'> ::= @ECHO
             Rule {
                 lhs: &VN_MULTIPLY_,
                 rhs: vec![&AC_ECHO],
@@ -360,21 +379,21 @@ impl Grammar {
                 first: vec![&VT_VARIABLE],
                 follow: vec![&VT_MULOP, &VT_ADDOP, &VT_AND, &VT_OR, &VT_THEN, &VT_ELSE, &VT_RPAR, &VT_COMMA, &VT_FORMAT, &VT_ENDMARK],
             },
-            // 23. & <F&AC_TOR> ::= "INTEGER" @INTEGER 
+            // 23. & <F&AC_TOR> ::= "INTEGER" @INTEGER
             Rule {
                 lhs: &VN_FACTOR,
                 rhs: vec![&VT_INTEGER, &AC_INTEGER],
                 first: vec![&VT_INTEGER],
                 follow: vec![&VT_MULOP, &VT_ADDOP, &VT_AND, &VT_OR, &VT_THEN, &VT_ELSE, &VT_RPAR, &VT_COMMA, &VT_FORMAT, &VT_ENDMARK],
             },
-            // 24. & <F&AC_TOR> ::= "DECIMAL" @DECIMAL 
+            // 24. & <F&AC_TOR> ::= "DECIMAL" @DECIMAL
             Rule {
                 lhs: &VN_FACTOR,
                 rhs: vec![&VT_DECIMAL, &AC_DECIMAL],
                 first: vec![&VT_DECIMAL],
                 follow: vec![&VT_MULOP, &VT_ADDOP, &VT_AND, &VT_OR, &VT_THEN, &VT_ELSE, &VT_RPAR, &VT_COMMA, &VT_FORMAT, &VT_ENDMARK],
             },
-            // 25. & <F&AC_TOR> ::= "LITERAL" @LITERAL 
+            // 25. & <F&AC_TOR> ::= "LITERAL" @LITERAL
             Rule {
                 lhs: &VN_FACTOR,
                 rhs: vec![&VT_LITERAL, &AC_LITERAL],
@@ -388,56 +407,56 @@ impl Grammar {
                 first: vec![&VT_TRUE],
                 follow: vec![&VT_MULOP, &VT_ADDOP, &VT_AND, &VT_OR, &VT_THEN, &VT_ELSE, &VT_RPAR, &VT_COMMA, &VT_FORMAT, &VT_ENDMARK],
             },
-            // 27. & <F&AC_TOR> ::= "FALSE" @FALSE 
+            // 27. & <F&AC_TOR> ::= "FALSE" @FALSE
             Rule {
                 lhs: &VN_FACTOR,
                 rhs: vec![&VT_FALSE, &AC_FALSE],
                 first: vec![&VT_FALSE],
                 follow: vec![&VT_MULOP, &VT_ADDOP, &VT_AND, &VT_OR, &VT_THEN, &VT_ELSE, &VT_RPAR, &VT_COMMA, &VT_FORMAT, &VT_ENDMARK],
             },
-            // 28. & <F&AC_TOR> ::= "(" <EXP> @SKIP  ")" 
+            // 28. & <F&AC_TOR> ::= "(" <EXP> @SKIP  ")"
             Rule {
                 lhs: &VN_FACTOR,
                 rhs: vec![&VT_LPAR, &VN_EXP, &AC_SKIP, &VT_RPAR],
                 first: vec![&VT_LPAR],
                 follow: vec![&VT_MULOP, &VT_ADDOP, &VT_AND, &VT_OR, &VT_THEN, &VT_ELSE, &VT_RPAR, &VT_COMMA, &VT_FORMAT, &VT_ENDMARK],
             },
-            // 29. & <F&AC_TOR> ::= "SELECT" <SELECTIONS> @SELECT 
+            // 29. & <F&AC_TOR> ::= "SELECT" <SELECTIONS> @SELECT
             Rule {
                 lhs: &VN_FACTOR,
                 rhs: vec![&VT_SELECT, &VN_SELECTIONS, &AC_SELECT],
                 first: vec![&VT_SELECT],
                 follow: vec![&VT_MULOP, &VT_ADDOP, &VT_AND, &VT_OR, &VT_THEN, &VT_ELSE, &VT_RPAR, &VT_COMMA, &VT_FORMAT, &VT_ENDMARK],
             },
-            // 30. & <FUNCTION'> ::= "(" <LIST> @SKIP ")" @CALL 
+            // 30. & <FUNCTION'> ::= "(" <LIST> @SKIP ")" @CALL
             Rule {
                 lhs: &VN_FUNCTION_,
                 rhs: vec![&VT_LPAR, &VN_LIST, &AC_SKIP, &VT_RPAR, &AC_CALL],
                 first: vec![&VT_LPAR],
                 follow: vec![&VT_MULOP, &VT_ADDOP, &VT_AND, &VT_OR, &VT_THEN, &VT_ELSE, &VT_RPAR, &VT_COMMA, &VT_FORMAT, &VT_ENDMARK],
             },
-            // 31. <FUNCTION'> ::= <EXP> @PARAMETER @CALL 
+            // 31. <FUNCTION'> ::= <EXP> @PARAMETER @CALL
             Rule {
                 lhs: &VN_FUNCTION_,
                 rhs: vec![&VN_EXP, &AC_PARAMETER, &AC_CALL],
                 first: vec![&VT_SELECT, &VT_FUNCTION, &VT_VARIABLE, &VT_INTEGER, &VT_DECIMAL, &VT_LITERAL, &VT_TRUE, &VT_FALSE, &VT_NOT, &VT_IF, ],
                 follow: vec![&VT_MULOP, &VT_ADDOP, &VT_AND, &VT_OR, &VT_THEN, &VT_ELSE, &VT_RPAR, &VT_COMMA, &VT_FORMAT, &VT_ENDMARK],
             },
-            // 32. <FUNCTION'> ::= @NOPARAMETER @CALL 
+            // 32. <FUNCTION'> ::= @NOPARAMETER @CALL
             Rule {
                 lhs: &VN_FUNCTION_,
                 rhs: vec![&AC_NOPARAMETER, &AC_CALL],
                 first: vec![&VT_RPAR, &VT_THEN, &VT_ELSE, &VT_OR, &VT_AND, &VT_RELOP, &VT_COMMA, &VT_ADDOP, &VT_MULOP, &VT_FORMAT, &VT_ENDMARK ],
                 follow: vec![],
             },
-            // 33. & <LIST> ::= <EXP> @CREATELIST <LIST'> 
+            // 33. & <LIST> ::= <EXP> @CREATELIST <LIST'>
             Rule {
                 lhs: &VN_LIST,
                 rhs: vec![&VN_EXP, &AC_CREATELIST, &VN_LIST_],
                 first: vec![&VT_SELECT, &VT_FUNCTION, &VT_VARIABLE, &VT_INTEGER, &VT_DECIMAL, &VT_LITERAL, &VT_TRUE, &VT_FALSE, &VT_LPAR, &VT_NOT, &VT_IF],
                 follow: vec![&VT_RPAR],
             },
-            // 34. & <LIST> ::= @EMPTYLIST 
+            // 34. & <LIST> ::= @EMPTYLIST
             Rule {
                 lhs: &VN_LIST,
                 rhs: vec![&AC_EMPTYLIST],
@@ -451,7 +470,7 @@ impl Grammar {
                 first: vec![&VT_COMMA],
                 follow: vec![&VT_RPAR],
             },
-            // 36. & <LIST'> ::= @ECHO 
+            // 36. & <LIST'> ::= @ECHO
             Rule {
                 lhs: &VN_LIST_,
                 rhs: vec![&AC_ECHO],
@@ -571,9 +590,9 @@ impl Grammar {
     }
 
     #[allow(dead_code)]
-    pub fn get_production(&self, a: Token, token: &Token) -> i32 {
-        let row = a.get_tag().to_int() as usize;
-        let col = token.get_tag().to_int() as usize;
+    pub fn get_production(&self, a: &Tag, b: &Tag) -> i32 {
+        let row = a.to_int() as usize;
+        let col = b.to_int() as usize;
 
         if row < self.m.row_len() && col < self.m.column_len() {
             return self.m[(row, col)];

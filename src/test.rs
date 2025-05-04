@@ -35,69 +35,30 @@ mod tag_tests {
 
 }
 
-// #[cfg(test)]
-// mod token_tests {
-//     use crate::{tag::Tag, token::Token, token::Attribute};
+#[cfg(test)]
+mod token_tests {
+    use crate::{tag::Tag, token::{Attribute, SimpleToken, Token}};
 
-//     #[test]
-//     fn tag_get_attribute() {
-//         let token = &mut &mut Token::from_tag(tag);
+    #[test]
+    fn tag_get_attribute() {
+        let tag = Tag::vn(1, "teste", 3);
+        let token = &mut SimpleToken::from_tag(tag);
 
-//         token.set_attribute(0, &Attribute {
-//             name: "attribute1".to_string(),
-//         });
-//         token.set_attribute(1, &Attribute {
-//             name: "attribute2".to_string(),
-//         });
-//         token.set_attribute(2, &Attribute {
-//             name: "attribute3".to_string(),
-//         });
+        token.set_attribute(0, &Attribute {
+            name: "attribute1".to_string(),
+        });
+        token.set_attribute(1, &Attribute {
+            name: "attribute2".to_string(),
+        });
+        token.set_attribute(2, &Attribute {
+            name: "attribute3".to_string(),
+        });
 
-//         assert_eq!(token.get_attribute(0).name, "attribute1");
-//         assert_eq!(token.get_attribute(1).name, "attribute2");
-//         assert_eq!(token.get_attribute(2).name, "attribute3");
-//     }
-
-//     #[test]
-//     fn token_format() {
-//         let tag = Tag::vn(1, "variable", 3);
-//         let token = &mut Token::new(tag);
-
-//         token.set_attribute(0, &Attribute {
-//             name: "attribute1".to_string(),
-//         });
-//         token.set_attribute(1, &Attribute {
-//             name: "attribute2".to_string(),
-//         });
-
-//         println!("{:#?}", token);
-
-//         assert_eq!(format!("{:#?}", token).to_string(), String::from("Token {
-//     tag: Tag {
-//         tag: 32769,
-//         name: \"variable\",
-//         num_att: 3,
-//     },
-//     inherited: Some(
-//         [
-//             Some(
-//                 Attribute {
-//                     name: \"attribute1\",
-//                 },
-//             ),
-//             Some(
-//                 Attribute {
-//                     name: \"attribute2\",
-//                 },
-//             ),
-//             None,
-//         ],
-//     ),
-// }"));
-
-//     }
-
-// }
+        assert_eq!(token.get_attribute(0).name, "attribute1");
+        assert_eq!(token.get_attribute(1).name, "attribute2");
+        assert_eq!(token.get_attribute(2).name, "attribute3");
+    }
+}
 
 
 #[cfg(test)]
@@ -197,4 +158,94 @@ mod environment {
 
 #[cfg(test)]
 mod scanner {
+    use std::collections::HashMap;
+
+    use crate::{grammar::{self}, scanner::{CeScanner, Scanner}, scanner_environment::ScannerEnv, token::{self, ComplementTrait, Token}, variable::Variable};
+
+    fn create_scanner_env(text: &'static str) -> ScannerEnv<'static> {
+        let vtext_ = text.split('\n').collect::<Vec<_>>();
+
+        ScannerEnv::new(vtext_)
+    }
+
+    fn create_symbol_table() -> HashMap::<String, Box<dyn Token>> {
+        HashMap::<String, Box<dyn Token>>::new()
+    }
+
+    fn create_variables() -> HashMap::<String, Variable> {
+        HashMap::<String, Variable>::new()
+    }
+
+    #[test]
+    fn scanner_next_add_operators() {
+        let symbol_table = create_symbol_table();
+        let variables = create_variables();
+        let mut scanner_env = create_scanner_env(" + - ");
+        let scanner = CeScanner::new();
+
+        let token = scanner.next_token(&mut scanner_env, &symbol_table, &variables);
+        assert_eq!(token.get_tag(), grammar::VT_ADDOP);
+        let token = token.as_any().downcast_ref::<token::ValuedToken<grammar::AddOpType>>().unwrap();
+        assert_eq!(token.get_complement(), grammar::AddOpType::Plus);
+
+        let token = scanner.next_token(&mut scanner_env, &symbol_table, &variables);
+        assert_eq!(token.get_tag(), grammar::VT_ADDOP);
+        let token = token.as_any().downcast_ref::<token::ValuedToken<grammar::AddOpType>>().unwrap();
+        assert_eq!(token.get_complement(), grammar::AddOpType::Minus);
+    }
+
+    #[test]
+    fn scanner_next_mul_operators() {
+        let symbol_table = create_symbol_table();
+        let variables = create_variables();
+        let mut scanner_env = create_scanner_env(" * / ");
+        let scanner = CeScanner::new();
+
+        let token = scanner.next_token(&mut scanner_env, &symbol_table, &variables);
+        assert_eq!(token.get_tag(), grammar::VT_MULOP);
+        let token = token.as_any().downcast_ref::<token::ValuedToken<grammar::MulOpType>>().unwrap();
+        assert_eq!(token.get_complement(), grammar::MulOpType::Multiply);
+
+        let token = scanner.next_token(&mut scanner_env, &symbol_table, &variables);
+        assert_eq!(token.get_tag(), grammar::VT_MULOP);
+        let token = token.as_any().downcast_ref::<token::ValuedToken<grammar::MulOpType>>().unwrap();
+        assert_eq!(token.get_complement(), grammar::MulOpType::Divide);
+    }
+
+    #[test]
+    fn scanner_next_rel_operators() {
+        let symbol_table = create_symbol_table();
+        let variables = create_variables();
+        let mut scanner_env = create_scanner_env("is isatleast isatmost islessthan ismorethan ");
+        let scanner = CeScanner::new();
+
+        let token = scanner.next_token(&mut scanner_env, &symbol_table, &variables);
+        assert_eq!(token.get_tag(), grammar::VT_RELOP);
+        let token = token.as_any().downcast_ref::<token::ValuedToken<grammar::RelOpType>>().unwrap();
+        assert_eq!(token.get_complement(), grammar::RelOpType::Is);
+
+        let token = scanner.next_token(&mut scanner_env, &symbol_table, &variables);
+        assert_eq!(token.get_tag(), grammar::VT_RELOP);
+        let token = token.as_any().downcast_ref::<token::ValuedToken<grammar::RelOpType>>().unwrap();
+        assert_eq!(token.get_complement(), grammar::RelOpType::IsAtLeast);
+
+        let token = scanner.next_token(&mut scanner_env, &symbol_table, &variables);
+        assert_eq!(token.get_tag(), grammar::VT_RELOP);
+        let token = token.as_any().downcast_ref::<token::ValuedToken<grammar::RelOpType>>().unwrap();
+        assert_eq!(token.get_complement(), grammar::RelOpType::IsAtMost);
+
+        let token = scanner.next_token(&mut scanner_env, &symbol_table, &variables);
+        assert_eq!(token.get_tag(), grammar::VT_RELOP);
+        let token = token.as_any().downcast_ref::<token::ValuedToken<grammar::RelOpType>>().unwrap();
+        assert_eq!(token.get_complement(), grammar::RelOpType::IsLessThan);
+
+        let token = scanner.next_token(&mut scanner_env, &symbol_table, &variables);
+        assert_eq!(token.get_tag(), grammar::VT_RELOP);
+        let token = token.as_any().downcast_ref::<token::ValuedToken<grammar::RelOpType>>().unwrap();
+        assert_eq!(token.get_complement(), grammar::RelOpType::IsMoreThan);
+
+        // let mut env = scanner_environment::ScannerEnv::new(vec!["'Tax Regulations Apply'"]);
+        // let token = scanner.next_token(&mut env, &symbol_table, &variables);
+    }
+
 }

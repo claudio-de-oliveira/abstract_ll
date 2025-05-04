@@ -13,6 +13,12 @@ pub struct Tag {
     pub num_att: usize,
 }
 
+impl PartialEq for Tag {
+    fn eq(&self, other: &Self) -> bool {
+        self.tag == other.tag
+    }
+}
+
 impl Tag {
     pub const fn vn(t: usize, name: &'static str, num_att: usize) -> Tag {
         Tag{ tag: t | VARIABLE, name, num_att }
@@ -45,23 +51,11 @@ impl Tag {
     pub const fn get_num_att(&self) -> usize {
         self.num_att
     }
-
-    // pub fn to_string(&self) -> String {
-    //     if self.is_variable() {
-    //         format!("<{0}>", self.name)
-    //     } else if self.is_terminal() {
-    //         format!("\"{}\"", self.name)
-    //     } else if self.is_action() {
-    //         format!("@{}", self.name)
-    //     } else {
-    //         panic!("Unknown")
-    //     }
-    // }
 }
 
 impl fmt::Display for Tag {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{0}", 
+        write!(f, "{0}",
             if self.is_variable() {
                 format!("<{0}>", self.name)
             } else if self.is_terminal() {

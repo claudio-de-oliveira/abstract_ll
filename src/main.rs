@@ -4,16 +4,16 @@ pub mod token;
 pub mod parser;
 pub mod rule;
 pub mod scanner_environment;
-pub mod concrete_scanner;
-//mod ce_tag;
-//mod ce_token;
+pub mod semantic_environment;
 mod scanner;
 mod grammar;
+mod variable;
+
+use std::collections::HashMap;
 
 use scanner::{CeScanner, Scanner};
-
-#[warn(non_snake_case)]
-use tag::Tag;
+use token::Token;
+use variable::Variable;
 
 fn main() {
     // let vn = Tag::vn(1, "variable", 1);
@@ -23,9 +23,39 @@ fn main() {
     // println!("{:?}", *ce_tag::VT_ANSWERED);
     // println!("{:?}", *ce_token::ALT);
     // println!("{:?}", *ce_token::ANSWERED);
-    // let mut env = scanner_environment::ScannerEnv::new(vec!["Claudio de Oliveira"]);
-    let scanner = CeScanner::new();
-    println!("{:#?}", scanner);
+    // let mut env = scanner_environment::ScannerEnv::new(vec!["Claudio de answered Oliveira"]);
+    // let scanner: CeScanner = CeScanner::new();
+    // let mut symbol_table = HashMap::<String, Box<dyn Token>>::new();
+
+
+    // let mut variables = HashMap::<String, Variable>::new();
+    // variables.insert(
+    //     "de".to_string(), 
+    //     Variable {
+    //         input_method: None, 
+    //         name: None, 
+    //         data_type: None, 
+    //         field_only: None, 
+    //         occurs_order: None, 
+    //         prompt: None, 
+    //         selections: None, 
+    //         repeat: None, 
+    //         repeats:2, 
+    //         definition: None, 
+    //         logic: None, 
+    //         default_format: None, 
+    //         original_format: None, 
+    //         depth: None, 
+    //         relevant: false, 
+    //         visible: None, 
+    //         value: None, 
+    //     }
+    // );
+
+    // let token = scanner.next_token(&mut env, &symbol_table, &variables);
+    // let token = scanner.next_token(&mut env, &symbol_table, &variables);
+    // let token = scanner.next_token(&mut env, &symbol_table, &variables);
+    // println!("{:#?}", scanner);
 
     // println!("{}", vn);
     // println!("{}", vt);

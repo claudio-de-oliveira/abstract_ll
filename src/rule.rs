@@ -13,8 +13,9 @@ impl Rule {
         rhs: Vec<&'static Tag>,
         first: Vec<&'static Tag>,
         follow: Vec<&'static Tag>) -> Self {
-        Rule { lhs, rhs, first, follow }
-    }
+            assert!(lhs.is_variable());
+            Rule { lhs, rhs, first, follow }
+        }
 }
 
 impl Rule {
