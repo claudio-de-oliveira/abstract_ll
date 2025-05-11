@@ -8,12 +8,15 @@ pub mod semantic_environment;
 mod scanner;
 mod grammar;
 mod variable;
+mod literal;
+
 
 use std::collections::HashMap;
 
 use scanner::{CeScanner, Scanner};
 use token::Token;
 use variable::Variable;
+use literal::Literal;
 
 fn main() {
     // let vn = Tag::vn(1, "variable", 1);

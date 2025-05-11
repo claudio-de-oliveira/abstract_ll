@@ -1,5 +1,3 @@
-pub struct Object {}
-
 #[derive(PartialEq, Clone, Debug)]
 pub struct Variable {
     pub input_method : Option<String>,

@@ -160,7 +160,7 @@ mod environment {
 mod scanner {
     use std::collections::HashMap;
 
-    use crate::{grammar::{self}, scanner::{CeScanner, Scanner}, scanner_environment::ScannerEnv, token::{self, ComplementTrait, Token}, variable::Variable};
+    use crate::{grammar::{self}, literal::Literal, scanner::{CeScanner, Scanner}, scanner_environment::ScannerEnv, token::{self, ComplementTrait, Token}, variable::Variable};
 
     fn create_scanner_env(text: &str) -> ScannerEnv {
         let vtext_ = text.split('\n').collect::<Vec<_>>();
@@ -269,8 +269,9 @@ mod scanner {
 
         let token = scanner.next_token(&mut scanner_env, &symbol_table, &variables);
         assert_eq!(token.get_tag(), grammar::VT_LITERAL);
-        let token = token.as_any().downcast_ref::<token::ValuedToken<grammar::LiteralToken>>().unwrap();
-        //assert_eq!(token.get_complement(), "North America");
+        let valued_token = token.as_any().downcast_ref::<token::ValuedToken<Literal>>().unwrap();
+        let literal = valued_token.get_complement();
+        assert_eq!(literal.value, "North America".to_string());
     }
 
     #[test]
@@ -286,6 +287,44 @@ mod scanner {
             let token = scanner.next_token(&mut scanner_env, &symbol_table, &variables);
             assert_eq!(token.get_tag(), *tag.unwrap());
         }
+    }
+
+    #[test]
+    fn scanner_next_numbers() {
+        let symbol_table = create_symbol_table();
+        let variables = create_variables();
+        let scanner = CeScanner::new();
+        let mut scanner_env = create_scanner_env("1 23 5678 12.34 0.45 17.0 ");
+
+        let token = scanner.next_token(&mut scanner_env, &symbol_table, &variables);
+        assert_eq!(token.get_tag(), grammar::VT_INTEGER);
+        let valued_token = token.as_any().downcast_ref::<token::ValuedToken<isize>>().unwrap();
+        assert_eq!(valued_token.get_complement(), 1_isize);
+
+        let token = scanner.next_token(&mut scanner_env, &symbol_table, &variables);
+        assert_eq!(token.get_tag(), grammar::VT_INTEGER);
+        let valued_token = token.as_any().downcast_ref::<token::ValuedToken<isize>>().unwrap();
+        assert_eq!(valued_token.get_complement(), 23_isize);
+
+        let token = scanner.next_token(&mut scanner_env, &symbol_table, &variables);
+        assert_eq!(token.get_tag(), grammar::VT_INTEGER);
+        let valued_token = token.as_any().downcast_ref::<token::ValuedToken<isize>>().unwrap();
+        assert_eq!(valued_token.get_complement(), 5678_isize);
+
+        let token = scanner.next_token(&mut scanner_env, &symbol_table, &variables);
+        assert_eq!(token.get_tag(), grammar::VT_DECIMAL);
+        let valued_token = token.as_any().downcast_ref::<token::ValuedToken<f64>>().unwrap();
+        assert_eq!(valued_token.get_complement(), 12.34_f64);
+
+        let token = scanner.next_token(&mut scanner_env, &symbol_table, &variables);
+        assert_eq!(token.get_tag(), grammar::VT_DECIMAL);
+        let valued_token = token.as_any().downcast_ref::<token::ValuedToken<f64>>().unwrap();
+        assert_eq!(valued_token.get_complement(), 0.45_f64);
+
+        let token = scanner.next_token(&mut scanner_env, &symbol_table, &variables);
+        assert_eq!(token.get_tag(), grammar::VT_DECIMAL);
+        let valued_token = token.as_any().downcast_ref::<token::ValuedToken<f64>>().unwrap();
+        assert_eq!(valued_token.get_complement(), 17.0_f64);
     }
 
 }

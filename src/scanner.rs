@@ -1,9 +1,10 @@
 use std::collections::HashMap;
 
-use crate::grammar::{self, AddOpType, DecimalToken, FunctionToken, IntegerToken, LiteralToken, MulOpToken, MulOpType, RelOpToken, RelOpType, UnknowToken, VariableToken };
+use crate::grammar::{self, AddOpType, DecimalToken, FunctionToken, IntegerToken, LiteralToken, MulOpToken, MulOpType, RelOpToken, RelOpType, UnknowToken, VariableToken, };
 use crate::tag::Tag;
 use crate::token::{ComplementTrait, SimpleToken, ValuedToken};
 use crate::variable::Variable;
+use crate::literal::Literal;
 use crate::{scanner_environment::ScannerEnv, token::Token};
 
 pub trait Scanner {
@@ -533,7 +534,8 @@ impl Scanner for CeScanner {
                 9 => {
                     env.retract();
                     if variables.contains_key(lexema.as_str()) {
-                         return Box::new(VariableToken::create(grammar::VT_VARIABLE, lexema));
+                        let variable = variables.get(lexema.as_str()).unwrap();
+                         return Box::new(VariableToken::create(grammar::VT_VARIABLE, variable.clone()));
                     }
                     else {
                         return Box::new(UnknowToken::create(grammar::VT_UNKNOW, lexema));
@@ -555,7 +557,7 @@ impl Scanner for CeScanner {
                     continue;
                 },
                 11 => {
-                    return Box::new(LiteralToken::create(grammar::VT_LITERAL, lexema));
+                    return Box::new(LiteralToken::create(grammar::VT_LITERAL, Literal { value: lexema.clone() }));
                 },
                 20 => {
                     return match lexema.as_str() {
@@ -602,12 +604,12 @@ impl Scanner for CeScanner {
                     ch = env.next_char();
 
                     if ch.is_digit(10) {
-                        lexema = ch.to_string();
+                        lexema.push(ch);
                         state = 40;
                         continue;
                     }
                     if ch == '.'  {
-                        lexema = ch.to_string();
+                        lexema.push(ch);
                         state = 41;
                         continue;
                     }
@@ -618,7 +620,7 @@ impl Scanner for CeScanner {
                     ch = env.next_char();
 
                     if ch.is_digit(10) {
-                        lexema = ch.to_string();
+                        lexema.push(ch);
                         state = 42;
                         continue;
                     }
@@ -629,7 +631,7 @@ impl Scanner for CeScanner {
                     ch = env.next_char();
 
                     if ch.is_digit(10) {
-                        lexema = ch.to_string();
+                        lexema.push(ch);
                         state = 42;
                         continue;
                     }

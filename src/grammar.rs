@@ -204,7 +204,7 @@ pub type MulOpToken = ValuedToken<MulOpType>;
 pub type RelOpToken = ValuedToken<RelOpType>;
 pub type VariableToken<C> = ValuedToken<C>;
 pub type FunctionToken<C> = ValuedToken<C>;
-pub type LiteralToken = ValuedToken<String>;
+pub type LiteralToken<C> = ValuedToken<C>;
 pub type IntegerToken = ValuedToken<isize>;
 pub type DecimalToken = ValuedToken<f64>;
 

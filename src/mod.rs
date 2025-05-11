@@ -9,4 +9,5 @@ pub mod CeScanner;
 pub mod abstract_parser;
 pub mod grammar;
 pub mod variable;
+pub mod literal;
 
