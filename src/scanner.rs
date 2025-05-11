@@ -503,6 +503,7 @@ impl Scanner for CeScanner {
                         continue;
                     }
                     if ch == '\''{
+                        lexema.push(ch);
                         state = 6;
                         continue;
                     }
@@ -522,7 +523,8 @@ impl Scanner for CeScanner {
                 },
                 6 => {
                     if variables.contains_key(lexema.as_str()) {
-                        return Box::new(VariableToken::create(grammar::VT_VARIABLE, lexema));
+                        let variable = variables.get(lexema.as_str()).unwrap();
+                        return Box::new(VariableToken::create(grammar::VT_VARIABLE, variable.clone()));
                     }   
                     else {
                         return Box::new(UnknowToken::create(grammar::VT_UNKNOW, lexema));

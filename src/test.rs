@@ -162,7 +162,7 @@ mod scanner {
 
     use crate::{grammar::{self}, scanner::{CeScanner, Scanner}, scanner_environment::ScannerEnv, token::{self, ComplementTrait, Token}, variable::Variable};
 
-    fn create_scanner_env(text: &'static str) -> ScannerEnv<'static> {
+    fn create_scanner_env(text: &str) -> ScannerEnv {
         let vtext_ = text.split('\n').collect::<Vec<_>>();
 
         ScannerEnv::new(vtext_)
@@ -243,9 +243,49 @@ mod scanner {
         assert_eq!(token.get_tag(), grammar::VT_RELOP);
         let token = token.as_any().downcast_ref::<token::ValuedToken<grammar::RelOpType>>().unwrap();
         assert_eq!(token.get_complement(), grammar::RelOpType::IsMoreThan);
+    }
 
-        // let mut env = scanner_environment::ScannerEnv::new(vec!["'Tax Regulations Apply'"]);
-        // let token = scanner.next_token(&mut env, &symbol_table, &variables);
+    #[test]
+    fn scanner_next_single_quoting_variable_names() {
+        let symbol_table = create_symbol_table();
+        let mut variables = create_variables();
+        let mut scanner_env = create_scanner_env("'Tax Regulations Apply' ");
+        variables.insert( "'Tax Regulations Apply'".to_string(), Variable { repeats: 1, relevant:false, input_method: None, name: Some("'Tax Regulations Apply'".to_string()), data_type: None, field_only: None, occurs_order: None, prompt: None, selections: None, repeat: None, definition: None, logic: None, default_format: None, original_format: None, depth: None, visible: None, value: None } );
+        let scanner = CeScanner::new();
+
+        let token = scanner.next_token(&mut scanner_env, &symbol_table, &variables);
+        assert_eq!(token.get_tag(), grammar::VT_VARIABLE);
+        let valued_token = token.as_any().downcast_ref::<token::ValuedToken<Variable>>().unwrap();
+        let variable = valued_token.get_complement();
+        assert_eq!(variable.name.unwrap(), "'Tax Regulations Apply'".to_string());
+    }
+
+    #[test]
+    fn scanner_next_double_quoting_variable_names() {
+        let symbol_table = create_symbol_table();
+        let variables = create_variables();
+        let mut scanner_env = create_scanner_env("\"North America\" ");
+        let scanner = CeScanner::new();
+
+        let token = scanner.next_token(&mut scanner_env, &symbol_table, &variables);
+        assert_eq!(token.get_tag(), grammar::VT_LITERAL);
+        let token = token.as_any().downcast_ref::<token::ValuedToken<grammar::LiteralToken>>().unwrap();
+        //assert_eq!(token.get_complement(), "North America");
+    }
+
+    #[test]
+    fn scanner_next_reserved_words() {
+        let symbol_table = create_symbol_table();
+        let variables = create_variables();
+        let scanner = CeScanner::new();
+        let text = scanner.reserved_words.keys().cloned().collect::<Vec<&str>>().join(" ") + "#";
+        let mut scanner_env = create_scanner_env(&text);
+
+        for word in scanner.reserved_words.keys().into_iter() {
+            let tag = scanner.reserved_words.get(word);
+            let token = scanner.next_token(&mut scanner_env, &symbol_table, &variables);
+            assert_eq!(token.get_tag(), *tag.unwrap());
+        }
     }
 
 }
